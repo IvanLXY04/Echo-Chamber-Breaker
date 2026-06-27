@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { GoogleLogin, useGoogleLogin } from '@react-oauth/google'
-import { jwtDecode } from 'jwt-decode'
+import { useGoogleLogin } from '@react-oauth/google'
 import ReactMarkdown from 'react-markdown'
 import './App.css'
 
@@ -135,15 +134,6 @@ function App() {
     } catch (e) {
       console.error('Failed to delete chat', e);
     }
-  }
-
-  // Mock OAuth Login
-  const handleLogin = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setIsLoggedIn(true);
-      setIsTransitioning(false);
-    }, 500);
   }
 
   const handleSend = async () => {
