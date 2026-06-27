@@ -6,7 +6,7 @@ class DebateOrchestrator:
     def __init__(self):
         self.state = {}
 
-    def process_turn(self, user_input: str, persona: str, history: list = []):
+    def process_turn(self, user_input: str, persona: str, difficulty: str, history: list = []):
         # We use the standard GenAI SDK to make it easy to run on FastAPI
         client = genai.Client()
         
@@ -33,7 +33,14 @@ Current User argument: {user_input}"""
         ).text
 
         # 2. Referee evaluates user input for fallacies
+        strictness_prompt = ""
+        if difficulty == "Hardcore":
+            strictness_prompt = "Be extremely strict. Flag every single cognitive bias, minor logical leap, emotional appeal, or slightly unsupported claim."
+        else:
+            strictness_prompt = "Be casual. Only flag major, obvious logical fallacies (like blatant Ad Hominem or Strawman). Ignore minor rhetoric."
+
         referee_prompt = f"""You are the Referee Agent in a debate.
+{strictness_prompt}
 Evaluate the following argument for logical fallacies and factual inaccuracies.
 Provide a score out of 10 for Argument Strength.
 Output your evaluation as JSON matching this A2UI scorecard format:
@@ -67,5 +74,41 @@ User argument: {user_input}"""
             "opponent_response": opponent_response,
             "referee_scorecard": referee_data
         }
+
+    def generate_report(self, history: list):
+        client = genai.Client()
+        formatted_history = ""
+        for msg in history:
+            if msg["sender"] == "user":
+                formatted_history += f"\nUser: {msg['text']}"
+            elif msg["sender"] == "opponent":
+                formatted_history += f"\nOpponent: {msg['text']}"
+        
+        report_prompt = f"""You are an expert Debate Analyst. Analyze the following debate history between a User and an Opponent.
+Provide a comprehensive Report Card for the User.
+Your output must be JSON matching this format:
+{{
+  "logical_consistency_score": "85/100",
+  "frequent_fallacies": ["Ad Hominem", "Strawman"],
+  "summary": "Overall summary of the user's performance...",
+  "improvement_tips": ["Tip 1", "Tip 2"]
+}}
+
+Debate History:
+{formatted_history}"""
+
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=report_prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+            ),
+        ).text
+        
+        import json
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError:
+            return {"error": "Failed to parse report card."}
 
 orchestrator = DebateOrchestrator()

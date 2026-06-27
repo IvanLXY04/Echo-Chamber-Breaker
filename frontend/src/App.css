@@ -869,3 +869,145 @@ progress::-webkit-progress-value {
     padding: 25px;
   }
 }
+
+/* New UI Elements */
+.chat-header-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.action-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
+  color: white;
+}
+
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+}
+.theme-toggle-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mic-btn {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.mic-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.mic-btn.recording {
+  color: #ef4444;
+  border-color: #ef4444;
+  animation: pulseRecording 1.5s infinite;
+}
+
+@keyframes pulseRecording {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.report-card-summary {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+/* Light Mode Overrides for App.css */
+body.light-mode .message.opponent {
+  background: rgba(241, 245, 249, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .chat-interface h2,
+body.light-mode .input-area {
+  background: rgba(241, 245, 249, 0.6);
+  color: #0f172a;
+}
+
+body.light-mode .input-area input {
+  background: rgba(255, 255, 255, 0.5);
+  color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode .sidebar {
+  background: rgba(226, 232, 240, 0.4);
+}
+
+body.light-mode .chat-list-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .form-group select {
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode .modal-content h2,
+body.light-mode .sidebar-header h3,
+body.light-mode .chat-title {
+  color: #0f172a;
+}
+
+body.light-mode .hero h1 {
+  background: linear-gradient(to right, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

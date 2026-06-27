@@ -53,6 +53,14 @@ function App() {
   const [activeModal, setActiveModal] = useState<{title: string, content: React.ReactNode} | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   
+  // New Feature States
+  const [isLightMode, setIsLightMode] = useState(false)
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
+  const [selectedPersona, setSelectedPersona] = useState('Socratic')
+  const [selectedDifficulty, setSelectedDifficulty] = useState('Normal')
+  const [isRecording, setIsRecording] = useState(false)
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false)
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -62,6 +70,14 @@ function App() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    if (isLightMode) {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+  }, [isLightMode])
 
   // Load chat list when user logs in
   useEffect(() => {
@@ -91,12 +107,17 @@ function App() {
     }
   }
 
-  const createNewChat = async () => {
+  const handleNewDebateClick = () => {
+    setShowSettingsModal(true);
+  }
+
+  const confirmCreateChat = async () => {
+    setShowSettingsModal(false);
     try {
       const res = await fetch(`${API_URL}/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail })
+        body: JSON.stringify({ email: userEmail, persona: selectedPersona, difficulty: selectedDifficulty })
       });
       const data = await res.json();
       setChatList([data, ...chatList]);
@@ -136,6 +157,81 @@ function App() {
     }
   }
 
+  const handleMicClick = () => {
+    if (isRecording) return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in your browser.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    
+    recognition.onstart = () => setIsRecording(true);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => prev + (prev ? ' ' : '') + transcript);
+    };
+    recognition.onerror = (e: any) => console.error("Speech recognition error", e);
+    recognition.onend = () => setIsRecording(false);
+    
+    recognition.start();
+  }
+
+  const handleConcludeDebate = async () => {
+    if (!currentChatId) return;
+    setIsGeneratingReport(true);
+    try {
+      const res = await fetch(`${API_URL}/chats/${currentChatId}/report`, { method: 'POST' });
+      const reportData = await res.json();
+      setActiveModal({
+        title: "Debate Report Card",
+        content: (
+          <div className="report-card">
+            <div className="progress-bar" style={{marginBottom: '15px'}}>
+              <label>
+                <span>Logical Consistency Score</span>
+                <span>{reportData.logical_consistency_score}</span>
+              </label>
+            </div>
+            <div className="report-card-summary">
+              <p><strong>Summary:</strong> {reportData.summary}</p>
+            </div>
+            <h4>Frequent Fallacies:</h4>
+            <ul>
+              {reportData.frequent_fallacies?.map((f: string, i: number) => <li key={i}>{f}</li>)}
+            </ul>
+            <h4>Improvement Tips:</h4>
+            <ul>
+              {reportData.improvement_tips?.map((t: string, i: number) => <li key={i}>{t}</li>)}
+            </ul>
+          </div>
+        )
+      });
+    } catch (e) {
+      console.error(e);
+      alert("Failed to generate report.");
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  }
+
+  const handleExportTranscript = () => {
+    if (!currentChatId || messages.length === 0) return;
+    let md = `# Debate Transcript\n\n`;
+    messages.forEach(msg => {
+      md += `**${msg.sender === 'user' ? 'You' : 'Opponent'}**: \n${msg.text}\n\n`;
+    });
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `debate_${currentChatId}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   const handleSend = async () => {
     if (!input.trim() || !currentChatId) return;
     
@@ -149,9 +245,12 @@ function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${localStorage.getItem('token')}` // In a real app
         },
-        body: JSON.stringify({ message: input, persona: 'Socratic' })
+        body: JSON.stringify({ 
+          message: input, 
+          persona: chatList.find(c => c.id === currentChatId)?.persona || 'Socratic',
+          difficulty: chatList.find(c => c.id === currentChatId)?.difficulty || 'Normal'
+        })
       });
 
       if (!response.ok) {
@@ -250,6 +349,33 @@ function App() {
             </div>
           </div>
         )}
+        {showSettingsModal && (
+          <div className="modal-overlay" onClick={() => setShowSettingsModal(false)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <button className="close-modal-btn" onClick={() => setShowSettingsModal(false)}>×</button>
+              <h2>New Debate Settings</h2>
+              <div className="form-group">
+                <label>Opponent Persona</label>
+                <select value={selectedPersona} onChange={e => setSelectedPersona(e.target.value)}>
+                  <option value="Socratic">Socratic (Balanced, insightful)</option>
+                  <option value="Devil's Advocate">Devil's Advocate (Aggressively disagrees)</option>
+                  <option value="Conspiracy Theorist">Conspiracy Theorist (Wild logical leaps)</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Referee Strictness</label>
+                <select value={selectedDifficulty} onChange={e => setSelectedDifficulty(e.target.value)}>
+                  <option value="Casual">Casual (Flags only major fallacies)</option>
+                  <option value="Normal">Normal (Balanced moderation)</option>
+                  <option value="Hardcore">Hardcore (Flags every minor cognitive bias)</option>
+                </select>
+              </div>
+              <button className="hero-cta-btn" style={{width: '100%', marginTop: '20px', justifyContent: 'center'}} onClick={confirmCreateChat}>
+                Start Debate
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="bg-orbs">
           <div className="orb orb-1"></div>
@@ -332,8 +458,11 @@ function App() {
         <div className="sidebar-header">
           <img src="/echo_chamber_breaker_logo.png" alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           <h3>Chats</h3>
+          <button className="theme-toggle-btn" onClick={() => setIsLightMode(!isLightMode)} title="Toggle Theme" style={{marginLeft: 'auto'}}>
+            {isLightMode ? '🌙' : '☀️'}
+          </button>
         </div>
-        <button className="new-chat-btn" onClick={createNewChat}>+ New Debate</button>
+        <button className="new-chat-btn" onClick={handleNewDebateClick}>+ New Debate</button>
         <div className="chat-list">
           {chatList.map((chat) => (
             <div key={chat.id} className={`chat-list-item ${currentChatId === chat.id ? 'active' : ''}`}>
@@ -384,7 +513,21 @@ function App() {
       </div>
       
       <div className="chat-interface">
-        <h2>Debate Coach</h2>
+        <h2>
+          Debate Coach
+          <div className="chat-header-actions">
+            {currentChatId && (
+              <>
+                <button className="action-btn" onClick={handleConcludeDebate} disabled={isGeneratingReport}>
+                  {isGeneratingReport ? 'Generating...' : 'Conclude & Score'}
+                </button>
+                <button className="action-btn" onClick={handleExportTranscript}>
+                  Export .md
+                </button>
+              </>
+            )}
+          </div>
+        </h2>
         
         {!currentChatId ? (
           <div className="empty-state">
@@ -424,6 +567,9 @@ function App() {
             </div>
             
             <div className="input-area">
+              <button className={`mic-btn ${isRecording ? 'recording' : ''}`} onClick={handleMicClick} title="Hold to speak">
+                🎤
+              </button>
               <input 
                 value={input} 
                 onChange={(e) => setInput(e.target.value)} 

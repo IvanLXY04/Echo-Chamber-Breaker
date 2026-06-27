@@ -13,7 +13,9 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT NOT NULL,
             name TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            created_at TEXT NOT NULL,
+            persona TEXT DEFAULT 'Socratic',
+            difficulty TEXT DEFAULT 'Normal'
         )
     ''')
     cursor.execute('''
@@ -27,16 +29,28 @@ def init_db():
             FOREIGN KEY (chat_id) REFERENCES chats (id)
         )
     ''')
+    
+    # Handle schema migration for existing databases
+    try:
+        cursor.execute("ALTER TABLE chats ADD COLUMN persona TEXT DEFAULT 'Socratic'")
+    except sqlite3.OperationalError:
+        pass
+    
+    try:
+        cursor.execute("ALTER TABLE chats ADD COLUMN difficulty TEXT DEFAULT 'Normal'")
+    except sqlite3.OperationalError:
+        pass
+
     conn.commit()
     conn.close()
 
 init_db()
 
-def create_chat(email: str, name: str):
+def create_chat(email: str, name: str, persona: str = "Socratic", difficulty: str = "Normal"):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     created_at = datetime.utcnow().isoformat()
-    cursor.execute('INSERT INTO chats (email, name, created_at) VALUES (?, ?, ?)', (email, name, created_at))
+    cursor.execute('INSERT INTO chats (email, name, created_at, persona, difficulty) VALUES (?, ?, ?, ?, ?)', (email, name, created_at, persona, difficulty))
     chat_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -45,8 +59,8 @@ def create_chat(email: str, name: str):
 def get_chats_by_email(email: str):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('SELECT id, name, created_at FROM chats WHERE email = ? ORDER BY created_at DESC', (email,))
-    chats = [{"id": row[0], "name": row[1], "created_at": row[2]} for row in cursor.fetchall()]
+    cursor.execute('SELECT id, name, created_at, persona, difficulty FROM chats WHERE email = ? ORDER BY created_at DESC', (email,))
+    chats = [{"id": row[0], "name": row[1], "created_at": row[2], "persona": row[3], "difficulty": row[4]} for row in cursor.fetchall()]
     conn.close()
     return chats
 

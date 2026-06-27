@@ -21,9 +21,12 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     message: str
     persona: str = "Socratic"
+    difficulty: str = "Normal"
 
 class CreateChatRequest(BaseModel):
     email: str
+    persona: str = "Socratic"
+    difficulty: str = "Normal"
 
 class UpdateChatNameRequest(BaseModel):
     name: str
@@ -31,8 +34,8 @@ class UpdateChatNameRequest(BaseModel):
 @app.post("/chats")
 async def create_chat(req: CreateChatRequest):
     chat_name = f"Debate: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')}"
-    chat_id = db.create_chat(req.email, chat_name)
-    return {"id": chat_id, "name": chat_name}
+    chat_id = db.create_chat(req.email, chat_name, req.persona, req.difficulty)
+    return {"id": chat_id, "name": chat_name, "persona": req.persona, "difficulty": req.difficulty}
 
 @app.get("/chats")
 async def get_chats(email: str):
@@ -59,12 +62,23 @@ async def chat(chat_id: int, chat_req: ChatRequest):
         history = db.get_messages(chat_id)
         
         # Process turn
-        result = orchestrator.process_turn(chat_req.message, chat_req.persona, history)
+        result = orchestrator.process_turn(chat_req.message, chat_req.persona, chat_req.difficulty, history)
         
         # Save AI responses
         db.add_message(chat_id, "opponent", result["opponent_response"], result["referee_scorecard"])
         
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/chats/{chat_id}/report")
+async def generate_report(chat_id: int):
+    history = db.get_messages(chat_id)
+    if not history:
+        raise HTTPException(status_code=400, detail="No history found for this chat.")
+    try:
+        report = orchestrator.generate_report(history)
+        return report
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
