@@ -859,6 +859,8 @@ progress::-webkit-progress-value {
   .chat-interface {
     flex: 1 1 auto;
     height: auto;
+    min-height: 0;
+    padding: 15px;
   }
 
   .chat-interface h2 {
