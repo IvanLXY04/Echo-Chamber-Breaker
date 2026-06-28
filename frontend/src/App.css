@@ -268,7 +268,8 @@
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   position: relative;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -278,12 +279,16 @@
   font-size: 1.8rem;
   color: #fff;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .modal-body {
   color: var(--text-secondary);
   line-height: 1.7;
   font-size: 1.1rem;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 10px; /* space for scrollbar */
 }
 
 .modal-body ul, .modal-body ol {
