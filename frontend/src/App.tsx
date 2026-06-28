@@ -341,7 +341,9 @@ function App() {
   }
 
   const handleExportTranscript = () => {
-    window.print();
+    setTimeout(() => {
+      window.print();
+    }, 100);
   }
 
   const handleSend = async () => {
