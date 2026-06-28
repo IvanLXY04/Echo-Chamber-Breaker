@@ -961,6 +961,10 @@ progress::-webkit-progress-value {
   color: var(--text-primary);
   font-size: 1rem;
 }
+.form-group select option {
+  background: #0b0f19;
+  color: #f0f4f8;
+}
 
 .report-card-summary {
   background: rgba(255, 255, 255, 0.05);
@@ -998,6 +1002,10 @@ body.light-mode .chat-list-item:hover {
 body.light-mode .form-group select {
   background: rgba(255, 255, 255, 0.5);
   border-color: rgba(0, 0, 0, 0.2);
+}
+body.light-mode .form-group select option {
+  background: #ffffff;
+  color: #0f172a;
 }
 
 body.light-mode .modal-content h2,
