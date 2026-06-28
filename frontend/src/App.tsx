@@ -640,7 +640,9 @@ function App() {
                     className="delete-chat-btn" 
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (window.confirm('Delete this chat?')) deleteChat(chat.id);
+                      setTimeout(() => {
+                        if (window.confirm('Delete this chat?')) deleteChat(chat.id);
+                      }, 100);
                     }}
                     title="Delete chat"
                   >
