@@ -65,10 +65,15 @@ function App() {
   const [isVoiceMuted, setIsVoiceMuted] = useState(false)
 
   const speakMessage = (text: string) => {
-    if (isVoiceMuted) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    window.speechSynthesis.speak(utterance);
+    if (!isVoiceMuted) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  const stopSpeaking = () => {
+    window.speechSynthesis.cancel();
   }
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -277,6 +282,11 @@ function App() {
             <div className="warning-card">
               <h4>Something went wrong</h4>
               <p>{displayError}</p>
+              <button 
+                onClick={() => { setActiveModal(null); handleConcludeDebate(); }} 
+                style={{ marginTop: '15px', padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                Retry
+              </button>
             </div>
           )
         });
@@ -688,6 +698,9 @@ function App() {
       <div className="chat-interface">
         <h2>
           Debate Coach
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
+            ({chatList.find(c => c.id === currentChatId)?.persona || 'Socratic'} | {chatList.find(c => c.id === currentChatId)?.format || 'Free Debate'})
+          </span>
           <div className="chat-header-actions">
             {currentChatId && (
               <>
@@ -737,7 +750,15 @@ function App() {
             <div className="messages">
               {messages.map((msg, i) => (
                 <div key={i} className={`message ${msg.sender}`}>
-                  <p><strong>{msg.sender === 'user' ? 'You' : 'Opponent'}:</strong></p>
+                  <div className="message-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span><strong>{msg.sender === 'user' ? 'You' : 'Opponent'}:</strong></span>
+                    {msg.sender === 'opponent' && (
+                      <div className="message-voice-controls" style={{ opacity: 0.6 }}>
+                        <button onClick={() => { setIsVoiceMuted(false); speakMessage(msg.text); }} title="Play Voice" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0 5px' }}>▶️</button>
+                        <button onClick={stopSpeaking} title="Stop Voice" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0 5px' }}>⏹️</button>
+                      </div>
+                    )}
+                  </div>
                   <div className="message-text">
                     {msg.sender === 'opponent' ? (
                       <ReactMarkdown>{msg.text}</ReactMarkdown>
