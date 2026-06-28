@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import ReactMarkdown from 'react-markdown'
+import { Joyride, STATUS } from 'react-joyride'
+import type { Step, EventData } from 'react-joyride'
 import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -53,6 +55,42 @@ function App() {
   const [activeModal, setActiveModal] = useState<{title: string, content: React.ReactNode} | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   
+  // Joyride Tour State
+  const [runTour, setRunTour] = useState(false)
+  const [tourSteps] = useState<Step[]>([
+    {
+      target: '.tour-new-debate',
+      content: 'Click here to start a fresh debate at any time.',
+    },
+    {
+      target: '.tour-analytics',
+      content: 'View your overall debate performance and common logical fallacies across all your debates.',
+    },
+    {
+      target: '.tour-persona',
+      content: 'Choose who you want to argue against. Try the Conspiracy Theorist for a wild ride!',
+    },
+    {
+      target: '.tour-strictness',
+      content: 'Decide how strictly the AI Referee will judge your arguments. Hardcore flags every minor bias!',
+    },
+    {
+      target: '.tour-format',
+      content: 'Select the rules of engagement. Lincoln-Douglas enforces a strict 4-turn limit to practice concise arguments.',
+    },
+    {
+      target: '.tour-starter',
+      content: 'Click any of these to immediately jump into a debate on a controversial topic.',
+    }
+  ])
+
+  const handleJoyrideCallback = (data: EventData) => {
+    const { status } = data;
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any)) {
+      setRunTour(false);
+    }
+  };
+
   useEffect(() => {
     if (userEmail && !localStorage.getItem(`hasSeenOnboarding_${userEmail}`)) {
       setActiveModal({
@@ -79,6 +117,13 @@ function App() {
           </div>
         )
       });
+    }
+  }, [userEmail]);
+
+  useEffect(() => {
+    if (userEmail && !localStorage.getItem(`hasSeenTour_${userEmail}`)) {
+      setRunTour(true);
+      localStorage.setItem(`hasSeenTour_${userEmail}`, 'true');
     }
   }, [userEmail]);
 
@@ -653,6 +698,16 @@ function App() {
           </div>
         </div>
       )}
+      <Joyride
+        steps={tourSteps}
+        run={runTour}
+        continuous
+        onEvent={handleJoyrideCallback}
+        options={{
+          primaryColor: '#3b82f6',
+          zIndex: 10000,
+        }}
+      />
       <div className="sidebar">
         <div className="sidebar-header">
           <img src="/echo_chamber_breaker_logo.png" alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
@@ -662,8 +717,8 @@ function App() {
           </button>
         </div>
         <div style={{ display: 'flex', gap: '10px', padding: '0 15px', marginBottom: '10px' }}>
-          <button className="new-chat-btn" style={{ flex: 1, margin: 0 }} onClick={handleNewDebateClick}>+ New Debate</button>
-          <button className="new-chat-btn" style={{ flex: 1, margin: 0, backgroundColor: '#3b82f6' }} onClick={fetchAnalytics}>Analytics</button>
+          <button className="new-chat-btn tour-new-debate" style={{ flex: 1, margin: 0 }} onClick={handleNewDebateClick}>+ New Debate</button>
+          <button className="new-chat-btn tour-analytics" style={{ flex: 1, margin: 0, backgroundColor: '#6366f1' }} onClick={fetchAnalytics}>Analytics</button>
         </div>
         <div className="chat-list">
           {chatList.map((chat) => (
@@ -769,16 +824,16 @@ function App() {
         {!currentChatId ? (
           <div className="empty-state">
             <p>Select a chat or start a new debate to begin.</p>
-            <div className="settings-panel">
-              <div className="form-group" style={{ marginBottom: '15px' }}>
+            <div className="new-debate-settings" style={{ textAlign: 'left', marginBottom: '30px', background: 'var(--surface-color)', padding: '20px', borderRadius: '8px' }}>
+              <div className="form-group tour-persona">
                 <label>Opponent Persona</label>
                 <select value={selectedPersona} onChange={e => setSelectedPersona(e.target.value)}>
                   <option value="Socratic">Socratic (Balanced, insightful)</option>
-                  <option value="Devil's Advocate">Devil's Advocate (Aggressively disagrees)</option>
-                  <option value="Conspiracy Theorist">Conspiracy Theorist (Wild logical leaps)</option>
+                  <option value="Devil's Advocate">Devil's Advocate (Contrarian, aggressive)</option>
+                  <option value="Conspiracy Theorist">Conspiracy Theorist (Skeptical, ignores facts)</option>
                 </select>
               </div>
-              <div className="form-group" style={{ marginBottom: '25px' }}>
+              <div className="form-group tour-strictness">
                 <label>Referee Strictness</label>
                 <select value={selectedDifficulty} onChange={e => setSelectedDifficulty(e.target.value)}>
                   <option value="Casual">Casual (Flags only major fallacies)</option>
@@ -786,13 +841,20 @@ function App() {
                   <option value="Hardcore">Hardcore (Flags every minor cognitive bias)</option>
                 </select>
               </div>
-            </div>
-              <div className="starter-topics">
-                <button className="topic-btn" onClick={() => handleStarterTopic("AI replaces SWEs")}>AI replaces SWEs</button>
-                <button className="topic-btn" onClick={() => handleStarterTopic("Universal Basic Income")}>Universal Basic Income</button>
-                <button className="topic-btn" onClick={() => handleStarterTopic("Social Media")}>Social Media</button>
+              <div className="form-group tour-format">
+                <label>Debate Format</label>
+                <select value={selectedFormat} onChange={e => setSelectedFormat(e.target.value)}>
+                  <option value="Free Debate">Free Debate (Unlimited turns)</option>
+                  <option value="Lincoln-Douglas">Lincoln-Douglas (4 Turns)</option>
+                </select>
               </div>
             </div>
+            <div className="starter-topics tour-starter">
+              <button className="topic-btn" onClick={() => handleStarterTopic("AI replaces SWEs")}>AI replaces SWEs</button>
+              <button className="topic-btn" onClick={() => handleStarterTopic("Universal Basic Income")}>Universal Basic Income</button>
+              <button className="topic-btn" onClick={() => handleStarterTopic("Social Media")}>Social Media</button>
+            </div>
+          </div>
         ) : (
           <>
             <div className="messages">
