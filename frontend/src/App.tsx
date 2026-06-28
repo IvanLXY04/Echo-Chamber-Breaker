@@ -349,33 +349,6 @@ function App() {
             </div>
           </div>
         )}
-        {showSettingsModal && (
-          <div className="modal-overlay" onClick={() => setShowSettingsModal(false)}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-              <button className="close-modal-btn" onClick={() => setShowSettingsModal(false)}>×</button>
-              <h2>New Debate Settings</h2>
-              <div className="form-group">
-                <label>Opponent Persona</label>
-                <select value={selectedPersona} onChange={e => setSelectedPersona(e.target.value)}>
-                  <option value="Socratic">Socratic (Balanced, insightful)</option>
-                  <option value="Devil's Advocate">Devil's Advocate (Aggressively disagrees)</option>
-                  <option value="Conspiracy Theorist">Conspiracy Theorist (Wild logical leaps)</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Referee Strictness</label>
-                <select value={selectedDifficulty} onChange={e => setSelectedDifficulty(e.target.value)}>
-                  <option value="Casual">Casual (Flags only major fallacies)</option>
-                  <option value="Normal">Normal (Balanced moderation)</option>
-                  <option value="Hardcore">Hardcore (Flags every minor cognitive bias)</option>
-                </select>
-              </div>
-              <button className="hero-cta-btn" style={{width: '100%', marginTop: '20px', justifyContent: 'center'}} onClick={confirmCreateChat}>
-                Start Debate
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="bg-orbs">
           <div className="orb orb-1"></div>
@@ -454,6 +427,42 @@ function App() {
 
   return (
     <div className="app-container">
+      {activeModal && (
+        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-modal-btn" onClick={() => setActiveModal(null)}>×</button>
+            <h2>{activeModal.title}</h2>
+            <div className="modal-body">{activeModal.content}</div>
+          </div>
+        </div>
+      )}
+      {showSettingsModal && (
+        <div className="modal-overlay" onClick={() => setShowSettingsModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-modal-btn" onClick={() => setShowSettingsModal(false)}>×</button>
+            <h2>New Debate Settings</h2>
+            <div className="form-group">
+              <label>Opponent Persona</label>
+              <select value={selectedPersona} onChange={e => setSelectedPersona(e.target.value)}>
+                <option value="Socratic">Socratic (Balanced, insightful)</option>
+                <option value="Devil's Advocate">Devil's Advocate (Aggressively disagrees)</option>
+                <option value="Conspiracy Theorist">Conspiracy Theorist (Wild logical leaps)</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Referee Strictness</label>
+              <select value={selectedDifficulty} onChange={e => setSelectedDifficulty(e.target.value)}>
+                <option value="Casual">Casual (Flags only major fallacies)</option>
+                <option value="Normal">Normal (Balanced moderation)</option>
+                <option value="Hardcore">Hardcore (Flags every minor cognitive bias)</option>
+              </select>
+            </div>
+            <button className="hero-cta-btn" style={{width: '100%', marginTop: '20px', justifyContent: 'center'}} onClick={confirmCreateChat}>
+              Start Debate
+            </button>
+          </div>
+        </div>
+      )}
       <div className="sidebar">
         <div className="sidebar-header">
           <img src="/echo_chamber_breaker_logo.png" alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
@@ -573,7 +582,7 @@ function App() {
               <input 
                 value={input} 
                 onChange={(e) => setInput(e.target.value)} 
-                placeholder="State your argument..."
+                placeholder={isRecording ? "🔴 Recording... Speak now" : "State your argument..."}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               />
               <button onClick={handleSend}>Send</button>
