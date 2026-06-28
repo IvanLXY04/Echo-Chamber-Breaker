@@ -137,6 +137,7 @@ function App() {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
   const [isVoiceMuted, setIsVoiceMuted] = useState(false)
+  const [customTopic, setCustomTopic] = useState('')
 
   const speakMessage = (text: string) => {
     window.speechSynthesis.cancel();
@@ -197,7 +198,7 @@ function App() {
   }
 
   const handleNewDebateClick = () => {
-    setShowSettingsModal(true);
+    setCurrentChatId(null);
   }
 
   const confirmCreateChat = async () => {
@@ -721,7 +722,7 @@ function App() {
           <button className="new-chat-btn tour-analytics" style={{ flex: 1, margin: 0, backgroundColor: '#6366f1' }} onClick={fetchAnalytics}>Analytics</button>
         </div>
         <div style={{ textAlign: 'center', padding: '0 15px', marginBottom: '10px' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setRunTour(true)}>Start interactive tour</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => { setCurrentChatId(null); setRunTour(true); }}>Start interactive tour</span>
         </div>
         <div className="chat-list">
           {chatList.map((chat) => (
@@ -856,6 +857,18 @@ function App() {
               <button className="topic-btn" onClick={() => handleStarterTopic("AI replaces SWEs")}>AI replaces SWEs</button>
               <button className="topic-btn" onClick={() => handleStarterTopic("Universal Basic Income")}>Universal Basic Income</button>
               <button className="topic-btn" onClick={() => handleStarterTopic("Social Media")}>Social Media</button>
+            </div>
+            
+            <div style={{ marginTop: '30px', display: 'flex', gap: '10px' }}>
+              <input 
+                type="text" 
+                value={customTopic}
+                onChange={(e) => setCustomTopic(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && customTopic.trim() && handleStarterTopic(customTopic)}
+                placeholder="Or type your own controversial topic..."
+                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface-color)', color: 'var(--text-primary)' }}
+              />
+              <button onClick={() => customTopic.trim() && handleStarterTopic(customTopic)}>Start</button>
             </div>
           </div>
         ) : (
