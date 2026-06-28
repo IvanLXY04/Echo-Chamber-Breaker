@@ -182,9 +182,39 @@ function App() {
   const handleConcludeDebate = async () => {
     if (!currentChatId) return;
     setIsGeneratingReport(true);
+    
+    // Show immediate feedback
+    setActiveModal({
+      title: 'Analyzing Debate...',
+      content: (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <div className="typing-indicator" style={{ margin: '0 auto 20px auto' }}>
+            <div className="dot"></div>
+            <div className="dot"></div>
+            <div className="dot"></div>
+          </div>
+          <p>Please wait while the AI generates your report card.</p>
+        </div>
+      )
+    });
+
     try {
       const res = await fetch(`${API_URL}/chats/${currentChatId}/report`, { method: 'POST' });
       const report = await res.json();
+      
+      if (report.error) {
+        setActiveModal({
+          title: 'Error Generating Report',
+          content: (
+            <div className="warning-card">
+              <h4>{report.error}</h4>
+              <p>Raw response: {report.raw}</p>
+            </div>
+          )
+        });
+        return;
+      }
+      
       setActiveModal({
         title: 'Debate Report Card',
         content: (

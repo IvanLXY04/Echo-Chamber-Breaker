@@ -107,8 +107,15 @@ Debate History:
         
         import json
         try:
-            return json.loads(response)
-        except json.JSONDecodeError:
-            return {"error": "Failed to parse report card."}
+            clean_response = response.strip()
+            if clean_response.startswith("```json"):
+                clean_response = clean_response[7:]
+            elif clean_response.startswith("```"):
+                clean_response = clean_response[3:]
+            if clean_response.endswith("```"):
+                clean_response = clean_response[:-3]
+            return json.loads(clean_response.strip())
+        except json.JSONDecodeError as e:
+            return {"error": f"Failed to parse report card: {str(e)}", "raw": response}
 
 orchestrator = DebateOrchestrator()
