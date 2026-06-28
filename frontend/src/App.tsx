@@ -202,13 +202,18 @@ function App() {
       const res = await fetch(`${API_URL}/chats/${currentChatId}/report`, { method: 'POST' });
       const report = await res.json();
       
-      if (report.error) {
+      const errorMessage = report.error || report.detail;
+      if (!res.ok || errorMessage) {
+        let displayError = typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage);
+        if (displayError.includes('429') || displayError.includes('RESOURCE_EXHAUSTED')) {
+          displayError = "Gemini API Quota Exceeded. You've reached the free tier limit. Please wait a minute before trying again.";
+        }
         setActiveModal({
           title: 'Error Generating Report',
           content: (
             <div className="warning-card">
-              <h4>{report.error}</h4>
-              <p>Raw response: {report.raw}</p>
+              <h4>Something went wrong</h4>
+              <p>{displayError}</p>
             </div>
           )
         });
@@ -316,6 +321,17 @@ function App() {
 
       const data = await response.json();
       
+      const errorMessage = data.error || data.detail;
+      if (!response.ok || errorMessage) {
+        let displayError = typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage);
+        if (displayError.includes('429') || displayError.includes('RESOURCE_EXHAUSTED')) {
+          displayError = "Gemini API Quota Exceeded. You've reached the free tier limit. Please wait a minute before sending another message.";
+        }
+        const errorMsg = { sender: 'opponent', text: `⚠️ **Error:** ${displayError}` };
+        setMessages([...newMessages, errorMsg]);
+        return;
+      }
+
       setMessages([...newMessages, { 
         sender: 'opponent', 
         text: data.opponent_response,
