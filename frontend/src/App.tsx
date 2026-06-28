@@ -121,9 +121,9 @@ function App() {
   }, [userEmail]);
 
   useEffect(() => {
-    if (userEmail && !localStorage.getItem(`hasSeenTour_${userEmail}`)) {
+    if (userEmail && !localStorage.getItem(`hasSeenTourV2_${userEmail}`)) {
       setRunTour(true);
-      localStorage.setItem(`hasSeenTour_${userEmail}`, 'true');
+      localStorage.setItem(`hasSeenTourV2_${userEmail}`, 'true');
     }
   }, [userEmail]);
 
