@@ -267,7 +267,9 @@
   border-radius: 20px;
   max-width: 500px;
   width: 90%;
-  max-height: 90vh;
+  height: 80vh;
+  max-height: 800px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
