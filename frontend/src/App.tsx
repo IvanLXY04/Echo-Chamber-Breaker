@@ -214,6 +214,28 @@ function App() {
         });
         return;
       }
+
+      // Handle nested structures or camelCase variations
+      let data = report;
+      if (report.report_card) data = report.report_card;
+      else if (report.ReportCard) data = report.ReportCard;
+      else if (Object.keys(report).length === 1 && typeof Object.values(report)[0] === 'object') {
+        data = Object.values(report)[0];
+      }
+
+      const score = data.logical_consistency_score || data.logicalConsistencyScore || data.logical_score || data.score || "N/A";
+      const summary = data.summary || data.Summary || "";
+      const fallacies = data.frequent_fallacies || data.frequentFallacies || data.fallacies || data.FrequentFallacies || [];
+      const tips = data.improvement_tips || data.improvementTips || data.tips || data.ImprovementTips || [];
+
+      if (!summary && score === "N/A" && fallacies.length === 0) {
+        // Fallback: Dump raw JSON if nothing matched
+        setActiveModal({
+          title: 'Report Output',
+          content: <pre style={{whiteSpace: 'pre-wrap', fontSize: '12px'}}>{JSON.stringify(report, null, 2)}</pre>
+        });
+        return;
+      }
       
       setActiveModal({
         title: 'Debate Report Card',
@@ -221,23 +243,23 @@ function App() {
           <div>
             <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px'}}>
               <strong>Logical Consistency Score</strong>
-              <span style={{fontWeight: 'bold', color: '#93c5fd'}}>{report.logical_consistency_score}</span>
+              <span style={{fontWeight: 'bold', color: '#93c5fd'}}>{score}</span>
             </div>
             <div className="report-card-summary">
-              <strong>Summary:</strong> {report.summary}
+              <strong>Summary:</strong> {summary}
             </div>
             
             <div style={{marginTop: '20px'}}>
               <strong>Frequent Fallacies:</strong>
               <ul>
-                {report.frequent_fallacies?.map((f: string, i: number) => <li key={i}>{f}</li>)}
+                {Array.isArray(fallacies) ? fallacies.map((f: string, i: number) => <li key={i}>{f}</li>) : <li>{String(fallacies)}</li>}
               </ul>
             </div>
             
             <div style={{marginTop: '20px'}}>
               <strong>Improvement Tips:</strong>
               <ul>
-                {report.improvement_tips?.map((t: string, i: number) => <li key={i}>{t}</li>)}
+                {Array.isArray(tips) ? tips.map((t: string, i: number) => <li key={i}>{t}</li>) : <li>{String(tips)}</li>}
               </ul>
             </div>
           </div>
