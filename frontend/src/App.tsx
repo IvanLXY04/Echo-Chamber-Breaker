@@ -138,6 +138,7 @@ function App() {
   const [countdown, setCountdown] = useState<number | null>(null)
   const [isVoiceMuted, setIsVoiceMuted] = useState(false)
   const [customTopic, setCustomTopic] = useState('')
+  const [inviteCopied, setInviteCopied] = useState(false)
 
   const speakMessage = (text: string) => {
     window.speechSynthesis.cancel();
@@ -799,12 +800,13 @@ function App() {
                 onClick={() => {
                   const url = `${window.location.origin}?join=${currentChatId}`;
                   navigator.clipboard.writeText(url);
-                  alert('Invite link copied to clipboard! Share it with a friend.');
+                  setInviteCopied(true);
+                  setTimeout(() => setInviteCopied(false), 2000);
                 }}
                 title="Invite a friend to this debate"
-                style={{ marginLeft: '10px', fontSize: '0.8rem', padding: '4px 8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', borderRadius: '4px' }}
+                style={{ marginLeft: '10px', fontSize: '0.8rem', padding: '4px 8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border)', color: inviteCopied ? '#10b981' : 'var(--text-secondary)', borderRadius: '4px', transition: 'color 0.2s' }}
               >
-                🔗 Invite
+                {inviteCopied ? '✅ Copied!' : '🔗 Invite'}
               </button>
             </>
           )}
