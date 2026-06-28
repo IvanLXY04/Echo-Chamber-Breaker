@@ -137,6 +137,41 @@ function App() {
     }
   }
 
+  const fetchAnalytics = async () => {
+    try {
+      const res = await fetch(`${API_URL}/users/${encodeURIComponent(userEmail)}/analytics`);
+      const data = await res.json();
+      const content = (
+        <div className="analytics-modal">
+          <div className="stat-card">
+            <h3>Total Debates</h3>
+            <div className="stat-value">{data.total_debates}</div>
+          </div>
+          <div className="stat-card">
+            <h3>Avg Argument Strength</h3>
+            <div className="stat-value">{data.average_score}/10</div>
+          </div>
+          <div className="fallacy-list" style={{ marginTop: '20px' }}>
+            <h3>Most Frequent Fallacies</h3>
+            {data.frequent_fallacies && data.frequent_fallacies.length > 0 ? (
+              data.frequent_fallacies.map((f: any, i: number) => (
+                <div key={i} className="fallacy-item" style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', marginBottom: '8px' }}>
+                  <span className="fallacy-name">{f.title}</span>
+                  <span className="fallacy-count">{f.count} times</span>
+                </div>
+              ))
+            ) : (
+              <p>No fallacies recorded yet. Keep debating!</p>
+            )}
+          </div>
+        </div>
+      );
+      setActiveModal({ title: "Your Debate Analytics", content });
+    } catch (e) {
+      console.error('Failed to fetch analytics', e);
+    }
+  }
+
   const saveChatName = async (chatId: number) => {
     try {
       await fetch(`${API_URL}/chats/${chatId}/name`, {
@@ -306,18 +341,7 @@ function App() {
   }
 
   const handleExportTranscript = () => {
-    if (!currentChatId || messages.length === 0) return;
-    let md = `# Debate Transcript\n\n`;
-    messages.forEach(msg => {
-      md += `**${msg.sender === 'user' ? 'You' : 'Opponent'}**: \n${msg.text}\n\n`;
-    });
-    const blob = new Blob([md], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `debate_${currentChatId}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+    window.print();
   }
 
   const handleSend = async () => {
@@ -574,7 +598,10 @@ function App() {
             {isLightMode ? '🌙' : '☀️'}
           </button>
         </div>
-        <button className="new-chat-btn" onClick={handleNewDebateClick}>+ New Debate</button>
+        <div style={{ display: 'flex', gap: '10px', padding: '0 15px', marginBottom: '10px' }}>
+          <button className="new-chat-btn" style={{ flex: 1, margin: 0 }} onClick={handleNewDebateClick}>+ New Debate</button>
+          <button className="new-chat-btn" style={{ flex: 1, margin: 0, backgroundColor: '#3b82f6' }} onClick={fetchAnalytics}>Analytics</button>
+        </div>
         <div className="chat-list">
           {chatList.map((chat) => (
             <div key={chat.id} className={`chat-list-item ${currentChatId === chat.id ? 'active' : ''}`}>
@@ -649,7 +676,7 @@ function App() {
                   {isGeneratingReport ? 'Generating...' : 'Conclude & Score'}
                 </button>
                 <button className="action-btn" onClick={handleExportTranscript}>
-                  Export .md
+                  Export PDF
                 </button>
               </>
             )}

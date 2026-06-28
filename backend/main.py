@@ -47,6 +47,36 @@ async def get_chat_history(chat_id: int):
     messages = db.get_messages(chat_id)
     return messages
 
+@app.get("/users/{email}/analytics")
+async def get_analytics(email: str):
+    chats = db.get_chats_by_email(email)
+    total_debates = len(chats)
+    total_score = 0
+    score_count = 0
+    fallacy_counts = {}
+    
+    for chat in chats:
+        messages = db.get_messages(chat["id"])
+        for msg in messages:
+            if msg.get("a2ui_payload"):
+                components = msg["a2ui_payload"].get("components", [])
+                for comp in components:
+                    if comp.get("component") == "ProgressBar" and comp.get("id") == "score":
+                        total_score += int(comp.get("value", 0))
+                        score_count += 1
+                    if comp.get("component") == "WarningCard" and comp.get("id") == "fallacy":
+                        title = comp.get("title", "Unknown Fallacy")
+                        fallacy_counts[title] = fallacy_counts.get(title, 0) + 1
+                        
+    average_score = round(total_score / score_count, 1) if score_count > 0 else 0
+    sorted_fallacies = [{"title": k, "count": v} for k, v in sorted(fallacy_counts.items(), key=lambda item: item[1], reverse=True)]
+    
+    return {
+        "total_debates": total_debates,
+        "average_score": average_score,
+        "frequent_fallacies": sorted_fallacies[:5]
+    }
+
 @app.put("/chats/{chat_id}/name")
 async def update_chat_name(chat_id: int, req: UpdateChatNameRequest):
     db.update_chat_name(chat_id, req.name)
