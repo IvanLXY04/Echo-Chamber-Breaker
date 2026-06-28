@@ -462,9 +462,11 @@ function App() {
   return (
     <div className="app-container">
       {activeModal && (
-        <div className="modal-overlay" onClick={() => setActiveModal(null)}>
+        <div className="modal-overlay" onClick={() => { if (!isGeneratingReport) setActiveModal(null); }}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-modal-btn" onClick={() => setActiveModal(null)}>×</button>
+            {!isGeneratingReport && (
+              <button className="close-modal-btn" onClick={() => setActiveModal(null)}>×</button>
+            )}
             <h2>{activeModal.title}</h2>
             <div className="modal-body">{activeModal.content}</div>
           </div>
