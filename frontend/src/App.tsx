@@ -184,28 +184,32 @@ function App() {
     setIsGeneratingReport(true);
     try {
       const res = await fetch(`${API_URL}/chats/${currentChatId}/report`, { method: 'POST' });
-      const reportData = await res.json();
+      const report = await res.json();
       setActiveModal({
-        title: "Debate Report Card",
+        title: 'Debate Report Card',
         content: (
-          <div className="report-card">
-            <div className="progress-bar" style={{marginBottom: '15px'}}>
-              <label>
-                <span>Logical Consistency Score</span>
-                <span>{reportData.logical_consistency_score}</span>
-              </label>
+          <div>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px'}}>
+              <strong>Logical Consistency Score</strong>
+              <span style={{fontWeight: 'bold', color: '#93c5fd'}}>{report.logical_consistency_score}</span>
             </div>
             <div className="report-card-summary">
-              <p><strong>Summary:</strong> {reportData.summary}</p>
+              <strong>Summary:</strong> {report.summary}
             </div>
-            <h4>Frequent Fallacies:</h4>
-            <ul>
-              {reportData.frequent_fallacies?.map((f: string, i: number) => <li key={i}>{f}</li>)}
-            </ul>
-            <h4>Improvement Tips:</h4>
-            <ul>
-              {reportData.improvement_tips?.map((t: string, i: number) => <li key={i}>{t}</li>)}
-            </ul>
+            
+            <div style={{marginTop: '20px'}}>
+              <strong>Frequent Fallacies:</strong>
+              <ul>
+                {report.frequent_fallacies?.map((f: string, i: number) => <li key={i}>{f}</li>)}
+              </ul>
+            </div>
+            
+            <div style={{marginTop: '20px'}}>
+              <strong>Improvement Tips:</strong>
+              <ul>
+                {report.improvement_tips?.map((t: string, i: number) => <li key={i}>{t}</li>)}
+              </ul>
+            </div>
           </div>
         )
       });
