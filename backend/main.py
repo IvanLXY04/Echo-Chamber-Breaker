@@ -1,13 +1,35 @@
 import os
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Dict, List
 from app.orchestrator import orchestrator
 from app.policy_server import policy_server
 import app.db as db
 
 app = FastAPI()
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[int, List[WebSocket]] = {}
+
+    async def connect(self, websocket: WebSocket, chat_id: int):
+        await websocket.accept()
+        if chat_id not in self.active_connections:
+            self.active_connections[chat_id] = []
+        self.active_connections[chat_id].append(websocket)
+
+    def disconnect(self, websocket: WebSocket, chat_id: int):
+        if chat_id in self.active_connections:
+            self.active_connections[chat_id].remove(websocket)
+
+    async def broadcast(self, message: dict, chat_id: int):
+        if chat_id in self.active_connections:
+            for connection in self.active_connections[chat_id]:
+                await connection.send_json(message)
+
+manager = ConnectionManager()
 
 # Allow CORS for local frontend
 app.add_middleware(
@@ -117,6 +139,43 @@ async def generate_report(chat_id: int):
 async def delete_chat(chat_id: int):
     db.delete_chat(chat_id)
     return {"status": "success"}
+
+@app.websocket("/ws/chats/{chat_id}/{email}")
+async def websocket_endpoint(websocket: WebSocket, chat_id: int, email: str):
+    await manager.connect(websocket, chat_id)
+    try:
+        while True:
+            data = await websocket.receive_json()
+            message_text = data.get("message")
+            persona = data.get("persona", "Socratic")
+            difficulty = data.get("difficulty", "Normal")
+            
+            # Save user message
+            db.add_message(chat_id, "user", message_text)
+            
+            # Broadcast human message
+            await manager.broadcast({
+                "type": "human_message",
+                "sender": email,
+                "text": message_text
+            }, chat_id)
+            
+            # Get history and process
+            history = db.get_messages(chat_id)
+            result = orchestrator.process_turn(message_text, persona, difficulty, history)
+            
+            # Save AI response
+            db.add_message(chat_id, "opponent", result["opponent_response"], result.get("referee_scorecard"))
+            
+            # Broadcast AI response
+            await manager.broadcast({
+                "type": "ai_message",
+                "opponent_response": result["opponent_response"],
+                "referee_scorecard": result.get("referee_scorecard")
+            }, chat_id)
+            
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, chat_id)
 
 if __name__ == "__main__":
     import uvicorn

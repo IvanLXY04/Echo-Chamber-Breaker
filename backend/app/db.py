@@ -16,7 +16,8 @@ def init_db():
             created_at TEXT NOT NULL,
             persona TEXT DEFAULT 'Socratic',
             difficulty TEXT DEFAULT 'Normal',
-            format TEXT DEFAULT 'Free Debate'
+            format TEXT DEFAULT 'Free Debate',
+            mode TEXT DEFAULT 'solo'
         )
     ''')
     cursor.execute('''
@@ -47,16 +48,21 @@ def init_db():
     except sqlite3.OperationalError:
         pass
 
+    try:
+        cursor.execute("ALTER TABLE chats ADD COLUMN mode TEXT DEFAULT 'solo'")
+    except sqlite3.OperationalError:
+        pass
+
     conn.commit()
     conn.close()
 
 init_db()
 
-def create_chat(email: str, name: str, persona: str = "Socratic", difficulty: str = "Normal", format: str = "Free Debate"):
+def create_chat(email: str, name: str, persona: str = "Socratic", difficulty: str = "Normal", format: str = "Free Debate", mode: str = "solo"):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     created_at = datetime.utcnow().isoformat()
-    cursor.execute('INSERT INTO chats (email, name, created_at, persona, difficulty, format) VALUES (?, ?, ?, ?, ?, ?)', (email, name, created_at, persona, difficulty, format))
+    cursor.execute('INSERT INTO chats (email, name, created_at, persona, difficulty, format, mode) VALUES (?, ?, ?, ?, ?, ?, ?)', (email, name, created_at, persona, difficulty, format, mode))
     chat_id = cursor.lastrowid
     conn.commit()
     conn.close()
@@ -65,8 +71,8 @@ def create_chat(email: str, name: str, persona: str = "Socratic", difficulty: st
 def get_chats_by_email(email: str):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('SELECT id, name, created_at, persona, difficulty, format FROM chats WHERE email = ? ORDER BY created_at DESC', (email,))
-    chats = [{"id": row[0], "name": row[1], "created_at": row[2], "persona": row[3], "difficulty": row[4], "format": row[5]} for row in cursor.fetchall()]
+    cursor.execute('SELECT id, name, created_at, persona, difficulty, format, mode FROM chats WHERE email = ? ORDER BY created_at DESC', (email,))
+    chats = [{"id": row[0], "name": row[1], "created_at": row[2], "persona": row[3], "difficulty": row[4], "format": row[5], "mode": row[6]} for row in cursor.fetchall()]
     conn.close()
     return chats
 

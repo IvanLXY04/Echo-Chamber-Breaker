@@ -357,68 +357,81 @@ function App() {
     }, 100);
   }
 
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const ws = useRef<WebSocket | null>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  useEffect(() => {
+    if (!currentChatId || !userEmail) return;
+    
+    // Connect to WebSocket
+    const wsUrl = API_URL.replace('http', 'ws');
+    ws.current = new WebSocket(`${wsUrl}/ws/chats/${currentChatId}/${encodeURIComponent(userEmail)}`);
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'human_message') {
+        if (data.sender !== userEmail) {
+          setMessages(prev => [...prev, { sender: 'opponent', text: `*[${data.sender}]* \n\n ${data.text}` }]);
+        }
+      } else if (data.type === 'ai_message') {
+        setIsTyping(false);
+        const opponentResponseMsg = { 
+          sender: 'opponent' as const, 
+          text: data.opponent_response,
+          a2ui_payload: data.referee_scorecard
+        };
+        
+        setMessages(prev => {
+          const finalMessages = [...prev, opponentResponseMsg];
+          const format = chatList.find(c => c.id === currentChatId)?.format || 'Free Debate';
+          const userTurns = finalMessages.filter(m => m.sender === 'user').length;
+          if (format === 'Lincoln-Douglas' && userTurns >= 4) {
+            handleConcludeDebate();
+          }
+          return finalMessages;
+        });
+        speakMessage(data.opponent_response);
+      }
+    };
+
+    return () => {
+      ws.current?.close();
+    };
+  }, [currentChatId, userEmail, chatList]); // Added chatList for format lookup
+
   const handleSend = async () => {
     if (!input.trim() || !currentChatId) return;
     
-    const newMessages = [...messages, { sender: 'user', text: input }];
+    const newMessages = [...messages, { sender: 'user' as const, text: input }];
     setMessages(newMessages);
     setInput('');
     setIsTyping(true);
 
     try {
-      const response = await fetch(`${API_URL}/chats/${currentChatId}/message`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({ 
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ 
           message: input, 
           persona: chatList.find(c => c.id === currentChatId)?.persona || 'Socratic',
           difficulty: chatList.find(c => c.id === currentChatId)?.difficulty || 'Normal',
           format: chatList.find(c => c.id === currentChatId)?.format || 'Free Debate'
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Network response was not ok');
-      }
-
-      const data = await response.json();
-      
-      const errorMessage = data.error || data.detail;
-      if (!response.ok || errorMessage) {
-        let displayError = typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage);
-        if (displayError.includes('429') || displayError.includes('RESOURCE_EXHAUSTED')) {
-          displayError = "Gemini API Quota Exceeded. You've reached the free tier limit. Please wait a minute before sending another message.";
-        }
-        const errorMsg = { sender: 'opponent', text: `⚠️ **Error:** ${displayError}` };
-        setMessages([...newMessages, errorMsg]);
-        return;
-      }
-
-      const opponentResponseMsg = { 
-        sender: 'opponent' as const, 
-        text: data.opponent_response,
-        a2ui_payload: data.referee_scorecard
-      };
-      
-      const finalMessages = [...newMessages, opponentResponseMsg];
-      setMessages(finalMessages);
-      speakMessage(data.opponent_response);
-      
-      const format = chatList.find(c => c.id === currentChatId)?.format || 'Free Debate';
-      const userTurns = finalMessages.filter(m => m.sender === 'user').length;
-      if (format === 'Lincoln-Douglas' && userTurns >= 4) {
-        handleConcludeDebate();
+        }));
+      } else {
+        throw new Error('WebSocket is not connected');
       }
     } catch (error: any) {
-      console.error("Failed to fetch response:", error);
+      console.error("Failed to send message:", error);
       setMessages([...newMessages, { 
         sender: 'opponent', 
         text: `Backend Error: ${error.message}`
       }]);
-    } finally {
       setIsTyping(false);
     }
   }
@@ -701,6 +714,17 @@ function App() {
           <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
             ({chatList.find(c => c.id === currentChatId)?.persona || 'Socratic'} | {chatList.find(c => c.id === currentChatId)?.format || 'Free Debate'})
           </span>
+          <button 
+            onClick={() => {
+              const url = `${window.location.origin}?join=${currentChatId}`;
+              navigator.clipboard.writeText(url);
+              alert('Invite link copied to clipboard! Share it with a friend.');
+            }}
+            title="Invite a friend to this debate"
+            style={{ marginLeft: '10px', fontSize: '0.8rem', padding: '4px 8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', borderRadius: '4px' }}
+          >
+            🔗 Invite
+          </button>
           <div className="chat-header-actions">
             {currentChatId && (
               <>
