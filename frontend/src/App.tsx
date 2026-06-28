@@ -720,6 +720,9 @@ function App() {
           <button className="new-chat-btn tour-new-debate" style={{ flex: 1, margin: 0 }} onClick={handleNewDebateClick}>+ New Debate</button>
           <button className="new-chat-btn tour-analytics" style={{ flex: 1, margin: 0, backgroundColor: '#6366f1' }} onClick={fetchAnalytics}>Analytics</button>
         </div>
+        <div style={{ textAlign: 'center', padding: '0 15px', marginBottom: '10px' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setRunTour(true)}>Start interactive tour</span>
+        </div>
         <div className="chat-list">
           {chatList.map((chat) => (
             <div key={chat.id} className={`chat-list-item ${currentChatId === chat.id ? 'active' : ''}`}>
