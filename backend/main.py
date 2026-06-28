@@ -70,6 +70,14 @@ async def get_chat_history(chat_id: int):
     messages = db.get_messages(chat_id)
     return messages
 
+class JoinChatRequest(BaseModel):
+    email: str
+
+@app.post("/chats/{chat_id}/join")
+async def join_chat_endpoint(chat_id: int, req: JoinChatRequest):
+    db.join_chat(chat_id, req.email)
+    return {"status": "success"}
+
 @app.get("/users/{email}/analytics")
 async def get_analytics(email: str):
     chats = db.get_chats_by_email(email)

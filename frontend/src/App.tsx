@@ -180,6 +180,16 @@ function App() {
         if (joinId) {
           const chatId = parseInt(joinId, 10);
           if (!isNaN(chatId)) {
+            try {
+              await fetch(`${API_URL}/chats/${chatId}/join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail })
+              });
+              await fetchChats(); // Refresh chat list to show joined chat in sidebar
+            } catch (e) {
+              console.error('Failed to join chat', e);
+            }
             await loadChat(chatId);
             window.history.replaceState({}, document.title, window.location.pathname);
           }

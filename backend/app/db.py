@@ -31,6 +31,15 @@ def init_db():
             FOREIGN KEY (chat_id) REFERENCES chats (id)
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS chat_participants (
+            chat_id INTEGER,
+            email TEXT,
+            joined_at TEXT,
+            PRIMARY KEY (chat_id, email),
+            FOREIGN KEY (chat_id) REFERENCES chats (id)
+        )
+    ''')
     
     # Handle schema migration for existing databases
     try:
@@ -71,10 +80,27 @@ def create_chat(email: str, name: str, persona: str = "Socratic", difficulty: st
 def get_chats_by_email(email: str):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('SELECT id, name, created_at, persona, difficulty, format, mode FROM chats WHERE email = ? ORDER BY created_at DESC', (email,))
+    cursor.execute('''
+        SELECT DISTINCT c.id, c.name, c.created_at, c.persona, c.difficulty, c.format, c.mode 
+        FROM chats c
+        LEFT JOIN chat_participants cp ON c.id = cp.chat_id
+        WHERE c.email = ? OR cp.email = ?
+        ORDER BY c.created_at DESC
+    ''', (email, email))
     chats = [{"id": row[0], "name": row[1], "created_at": row[2], "persona": row[3], "difficulty": row[4], "format": row[5], "mode": row[6]} for row in cursor.fetchall()]
     conn.close()
     return chats
+
+def join_chat(chat_id: int, email: str):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    joined_at = datetime.utcnow().isoformat()
+    try:
+        cursor.execute('INSERT OR IGNORE INTO chat_participants (chat_id, email, joined_at) VALUES (?, ?, ?)', (chat_id, email, joined_at))
+        conn.commit()
+    except sqlite3.Error:
+        pass
+    conn.close()
 
 def update_chat_name(chat_id: int, new_name: str):
     conn = sqlite3.connect(DB_PATH)
