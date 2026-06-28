@@ -61,6 +61,14 @@ function App() {
   const [isRecording, setIsRecording] = useState(false)
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false)
+
+  const speakMessage = (text: string) => {
+    if (isVoiceMuted) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
+  }
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -356,6 +364,7 @@ function App() {
         text: data.opponent_response,
         a2ui_payload: data.referee_scorecard
       }]);
+      speakMessage(data.opponent_response);
     } catch (error: any) {
       console.error("Failed to fetch response:", error);
       setMessages([...newMessages, { 
@@ -372,7 +381,7 @@ function App() {
       const res = await fetch(`${API_URL}/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail })
+        body: JSON.stringify({ email: userEmail, persona: selectedPersona, difficulty: selectedDifficulty })
       });
       const data = await res.json();
       setChatList([data, ...chatList]);
@@ -385,7 +394,7 @@ function App() {
       const response = await fetch(`${API_URL}/chats/${data.id}/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: topic, persona: 'Socratic' })
+        body: JSON.stringify({ message: topic, persona: selectedPersona, difficulty: selectedDifficulty })
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -396,6 +405,7 @@ function App() {
         text: responseData.opponent_response,
         a2ui_payload: responseData.referee_scorecard
       }]);
+      speakMessage(responseData.opponent_response);
     } catch (error: any) {
       console.error("Failed to fetch response:", error);
     } finally {
@@ -632,6 +642,9 @@ function App() {
           <div className="chat-header-actions">
             {currentChatId && (
               <>
+                <button className="action-btn" onClick={() => setIsVoiceMuted(!isVoiceMuted)} title={isVoiceMuted ? "Unmute AI Voice" : "Mute AI Voice"}>
+                  {isVoiceMuted ? '🔇' : '🔊'}
+                </button>
                 <button className="action-btn" onClick={handleConcludeDebate} disabled={isGeneratingReport}>
                   {isGeneratingReport ? 'Generating...' : 'Conclude & Score'}
                 </button>
@@ -646,6 +659,24 @@ function App() {
         {!currentChatId ? (
           <div className="empty-state">
             <p>Select a chat or start a new debate to begin.</p>
+            <div className="settings-panel">
+              <div className="form-group" style={{ marginBottom: '15px' }}>
+                <label>Opponent Persona</label>
+                <select value={selectedPersona} onChange={e => setSelectedPersona(e.target.value)}>
+                  <option value="Socratic">Socratic (Balanced, insightful)</option>
+                  <option value="Devil's Advocate">Devil's Advocate (Aggressively disagrees)</option>
+                  <option value="Conspiracy Theorist">Conspiracy Theorist (Wild logical leaps)</option>
+                </select>
+              </div>
+              <div className="form-group" style={{ marginBottom: '25px' }}>
+                <label>Referee Strictness</label>
+                <select value={selectedDifficulty} onChange={e => setSelectedDifficulty(e.target.value)}>
+                  <option value="Casual">Casual (Flags only major fallacies)</option>
+                  <option value="Normal">Normal (Balanced moderation)</option>
+                  <option value="Hardcore">Hardcore (Flags every minor cognitive bias)</option>
+                </select>
+              </div>
+            </div>
             <div className="starter-topics">
               <button onClick={() => handleStarterTopic('AI will inevitably replace software engineers within a decade.')}>AI replaces SWEs</button>
               <button onClick={() => handleStarterTopic('Universal Basic Income is necessary for a stable future society.')}>Universal Basic Income</button>
