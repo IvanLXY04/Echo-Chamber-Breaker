@@ -357,16 +357,7 @@ function App() {
     }, 100);
   }
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
   const ws = useRef<WebSocket | null>(null)
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
 
   useEffect(() => {
     if (!currentChatId || !userEmail) return;
