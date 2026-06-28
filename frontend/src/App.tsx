@@ -60,6 +60,7 @@ function App() {
   const [selectedDifficulty, setSelectedDifficulty] = useState('Normal')
   const [isRecording, setIsRecording] = useState(false)
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
+  const [countdown, setCountdown] = useState<number | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -157,8 +158,20 @@ function App() {
     }
   }
 
-  const handleMicClick = () => {
-    if (isRecording) return;
+  useEffect(() => {
+    if (countdown === null) return;
+    
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      // Start recording when countdown reaches 0
+      setCountdown(null);
+      startSpeechRecognition();
+    }
+  }, [countdown]);
+
+  const startSpeechRecognition = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Speech recognition is not supported in your browser.");
@@ -178,6 +191,12 @@ function App() {
     
     recognition.start();
   }
+
+  const handleMicClick = () => {
+    if (isRecording || countdown !== null) return;
+    setCountdown(3);
+  }
+
 
   const handleConcludeDebate = async () => {
     if (!currentChatId) return;
@@ -666,10 +685,12 @@ function App() {
                 🎤
               </button>
               <input 
-                value={input} 
-                onChange={(e) => setInput(e.target.value)} 
-                placeholder={isRecording ? "🔴 Recording... Speak now" : "State your argument..."}
+                type="text" 
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder={isRecording ? "🔴 Recording... Speak now" : (countdown !== null ? `Starting in ${countdown}...` : "State your argument...")}
+                disabled={isRecording || isTyping || countdown !== null}
               />
               <button onClick={handleSend}>Send</button>
             </div>
