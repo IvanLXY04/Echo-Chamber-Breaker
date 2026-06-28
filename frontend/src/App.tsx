@@ -758,12 +758,26 @@ function App() {
                 </select>
               </div>
             </div>
-            <div className="starter-topics">
-              <button onClick={() => handleStarterTopic('AI will inevitably replace software engineers within a decade.')}>AI replaces SWEs</button>
-              <button onClick={() => handleStarterTopic('Universal Basic Income is necessary for a stable future society.')}>Universal Basic Income</button>
-              <button onClick={() => handleStarterTopic('Social media has been a net negative for human civilization.')}>Social Media</button>
+              <div className="starter-topics">
+                <button className="topic-btn" onClick={() => handleStarterTopic("AI replaces SWEs")}>AI replaces SWEs</button>
+                <button className="topic-btn" onClick={() => handleStarterTopic("Universal Basic Income")}>Universal Basic Income</button>
+                <button className="topic-btn" onClick={() => handleStarterTopic("Social Media")}>Social Media</button>
+              </div>
+
+              {chatList.length === 0 && (
+                <div className="onboarding-guide" style={{ textAlign: 'left', marginTop: '50px', background: 'rgba(59, 130, 246, 0.1)', padding: '25px', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
+                  <h4 style={{ marginBottom: '15px', color: 'var(--text-primary)' }}>Welcome to your personal Debate Coach! 🥊</h4>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '15px', fontSize: '0.95rem' }}>Here is a quick step-by-step guide to get started:</p>
+                  <ol style={{ paddingLeft: '20px', color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '0.95rem', margin: 0 }}>
+                    <li><strong>Set the Rules:</strong> Pick your opponent's persona, the referee's strictness, and the debate format (Free Debate vs 4-Turn limit).</li>
+                    <li><strong>Start the Debate:</strong> Click one of the starter topics above, or type your own custom topic into the chat box below to begin!</li>
+                    <li><strong>Use Your Voice:</strong> Once in a debate, hold the 🎤 icon to speak your arguments out loud, and listen to the AI respond.</li>
+                    <li><strong>Get Scored:</strong> Click "Conclude & Score" at any time to receive a detailed AI report card analyzing your logical fallacies.</li>
+                    <li><strong>Invite a Friend:</strong> Click the 🔗 Invite button in any active debate to share a link and challenge a real person!</li>
+                  </ol>
+                </div>
+              )}
             </div>
-          </div>
         ) : (
           <>
             <div className="messages">
