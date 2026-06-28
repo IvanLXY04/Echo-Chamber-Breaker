@@ -868,9 +868,24 @@ function App() {
                 onChange={(e) => setCustomTopic(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && customTopic.trim() && handleStarterTopic(customTopic)}
                 placeholder="Or type your own controversial topic..."
-                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface-color)', color: 'var(--text-primary)' }}
+                style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface-color)', color: 'var(--text-primary)', fontSize: '1rem' }}
               />
-              <button onClick={() => customTopic.trim() && handleStarterTopic(customTopic)}>Start</button>
+              <button 
+                onClick={() => customTopic.trim() && handleStarterTopic(customTopic)}
+                style={{
+                  padding: '0 24px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  boxShadow: '0 4px 6px rgba(59, 130, 246, 0.2)',
+                }}
+              >
+                Start Debate
+              </button>
             </div>
           </div>
         ) : (
