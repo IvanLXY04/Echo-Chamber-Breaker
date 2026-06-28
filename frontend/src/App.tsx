@@ -593,6 +593,18 @@ function App() {
             </div>
           ))}
         </div>
+        <div className="user-pane">
+          <div className="user-email">{userEmail}</div>
+          <button className="logout-btn" onClick={() => {
+            setIsLoggedIn(false);
+            setUserEmail("");
+            setCurrentChatId(null);
+            setMessages([]);
+            setChatList([]);
+          }}>
+            Log Out
+          </button>
+        </div>
       </div>
       
       <div className="chat-interface">

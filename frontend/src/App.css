@@ -1060,3 +1060,40 @@ body.light-mode .action-btn {
 body.light-mode .action-btn:hover {
   color: #fff;
 }
+
+/* User Pane */
+.user-pane {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-email {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+  word-break: break-all;
+}
+
+.logout-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+body.light-mode .user-email {
+  color: #475569;
+}
