@@ -53,6 +53,35 @@ function App() {
   const [activeModal, setActiveModal] = useState<{title: string, content: React.ReactNode} | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   
+  useEffect(() => {
+    if (userEmail && !localStorage.getItem(`hasSeenOnboarding_${userEmail}`)) {
+      setActiveModal({
+        title: 'Welcome to your personal Debate Coach! 🥊',
+        content: (
+          <div className="onboarding-guide" style={{ textAlign: 'left', padding: '10px' }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '15px', fontSize: '0.95rem' }}>Here is a quick step-by-step guide to get started:</p>
+            <ol style={{ paddingLeft: '20px', color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '0.95rem', margin: 0 }}>
+              <li><strong>Set the Rules:</strong> Pick your opponent's persona, the referee's strictness, and the debate format.</li>
+              <li><strong>Start the Debate:</strong> Click a starter topic or type your own.</li>
+              <li><strong>Use Your Voice:</strong> Hold the 🎤 icon to speak your arguments out loud!</li>
+              <li><strong>Get Scored:</strong> Click "Conclude & Score" at any time to receive a detailed AI report card analyzing your logical fallacies.</li>
+              <li><strong>Invite a Friend:</strong> Click the 🔗 Invite button in any active debate to share a link and challenge a real person!</li>
+            </ol>
+            <button 
+              onClick={() => {
+                localStorage.setItem(`hasSeenOnboarding_${userEmail}`, 'true');
+                setActiveModal(null);
+              }}
+              style={{ width: '100%', marginTop: '20px', padding: '10px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              Let's Debate!
+            </button>
+          </div>
+        )
+      });
+    }
+  }, [userEmail]);
+
   // New Feature States
   const [isLightMode, setIsLightMode] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
@@ -763,20 +792,6 @@ function App() {
                 <button className="topic-btn" onClick={() => handleStarterTopic("Universal Basic Income")}>Universal Basic Income</button>
                 <button className="topic-btn" onClick={() => handleStarterTopic("Social Media")}>Social Media</button>
               </div>
-
-              {chatList.length === 0 && (
-                <div className="onboarding-guide" style={{ textAlign: 'left', marginTop: '50px', background: 'rgba(59, 130, 246, 0.1)', padding: '25px', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
-                  <h4 style={{ marginBottom: '15px', color: 'var(--text-primary)' }}>Welcome to your personal Debate Coach! 🥊</h4>
-                  <p style={{ color: 'var(--text-secondary)', marginBottom: '15px', fontSize: '0.95rem' }}>Here is a quick step-by-step guide to get started:</p>
-                  <ol style={{ paddingLeft: '20px', color: 'var(--text-secondary)', lineHeight: '1.8', fontSize: '0.95rem', margin: 0 }}>
-                    <li><strong>Set the Rules:</strong> Pick your opponent's persona, the referee's strictness, and the debate format (Free Debate vs 4-Turn limit).</li>
-                    <li><strong>Start the Debate:</strong> Click one of the starter topics above, or type your own custom topic into the chat box below to begin!</li>
-                    <li><strong>Use Your Voice:</strong> Once in a debate, hold the 🎤 icon to speak your arguments out loud, and listen to the AI respond.</li>
-                    <li><strong>Get Scored:</strong> Click "Conclude & Score" at any time to receive a detailed AI report card analyzing your logical fallacies.</li>
-                    <li><strong>Invite a Friend:</strong> Click the 🔗 Invite button in any active debate to share a link and challenge a real person!</li>
-                  </ol>
-                </div>
-              )}
             </div>
         ) : (
           <>
