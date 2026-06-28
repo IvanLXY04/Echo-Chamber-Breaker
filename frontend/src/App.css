@@ -1071,6 +1071,36 @@ body.light-mode .action-btn:hover {
   color: #fff;
 }
 
+body.light-mode .message.user {
+  color: #ffffff;
+}
+
+body.light-mode .message.user p strong {
+  color: #e0e7ff;
+}
+
+body.light-mode .a2ui-container {
+  background: rgba(226, 232, 240, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .a2ui-container h3 {
+  color: #334155;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .warning-card h4 {
+  color: #991b1b;
+}
+
+body.light-mode .warning-card p {
+  color: #7f1d1d;
+}
+
+body.light-mode .progress-bar label {
+  color: #334155;
+}
+
 /* User Pane */
 .user-pane {
   margin-top: auto;
