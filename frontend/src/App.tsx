@@ -173,7 +173,19 @@ function App() {
   // Load chat list when user logs in
   useEffect(() => {
     if (userEmail) {
-      fetchChats();
+      const init = async () => {
+        await fetchChats();
+        const urlParams = new URLSearchParams(window.location.search);
+        const joinId = urlParams.get('join');
+        if (joinId) {
+          const chatId = parseInt(joinId, 10);
+          if (!isNaN(chatId)) {
+            await loadChat(chatId);
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        }
+      };
+      init();
     }
   }, [userEmail])
 
