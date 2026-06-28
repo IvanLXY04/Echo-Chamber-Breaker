@@ -702,20 +702,24 @@ function App() {
       <div className="chat-interface">
         <h2>
           Debate Coach
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
-            ({chatList.find(c => c.id === currentChatId)?.persona || 'Socratic'} | {chatList.find(c => c.id === currentChatId)?.format || 'Free Debate'})
-          </span>
-          <button 
-            onClick={() => {
-              const url = `${window.location.origin}?join=${currentChatId}`;
-              navigator.clipboard.writeText(url);
-              alert('Invite link copied to clipboard! Share it with a friend.');
-            }}
-            title="Invite a friend to this debate"
-            style={{ marginLeft: '10px', fontSize: '0.8rem', padding: '4px 8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', borderRadius: '4px' }}
-          >
-            🔗 Invite
-          </button>
+          {currentChatId && (
+            <>
+              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
+                ({chatList.find(c => c.id === currentChatId)?.persona || 'Socratic'} | {chatList.find(c => c.id === currentChatId)?.format || 'Free Debate'})
+              </span>
+              <button 
+                onClick={() => {
+                  const url = `${window.location.origin}?join=${currentChatId}`;
+                  navigator.clipboard.writeText(url);
+                  alert('Invite link copied to clipboard! Share it with a friend.');
+                }}
+                title="Invite a friend to this debate"
+                style={{ marginLeft: '10px', fontSize: '0.8rem', padding: '4px 8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', borderRadius: '4px' }}
+              >
+                🔗 Invite
+              </button>
+            </>
+          )}
           <div className="chat-header-actions">
             {currentChatId && (
               <>
