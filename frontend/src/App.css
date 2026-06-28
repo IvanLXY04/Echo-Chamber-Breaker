@@ -1019,3 +1019,35 @@ body.light-mode .hero h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+body.light-mode .chat-list-item {
+  color: #475569;
+}
+
+body.light-mode .edit-chat-btn {
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode .edit-chat-btn:hover {
+  color: #fff;
+  background: rgba(139, 92, 246, 0.8);
+}
+
+body.light-mode .empty-state {
+  color: #475569;
+}
+
+body.light-mode .starter-topics button {
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode .action-btn {
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode .action-btn:hover {
+  color: #fff;
+}
