@@ -56,8 +56,9 @@ function App() {
   // New Feature States
   const [isLightMode, setIsLightMode] = useState(false)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
-  const [selectedPersona, setSelectedPersona] = useState('Socratic')
-  const [selectedDifficulty, setSelectedDifficulty] = useState('Normal')
+  const [selectedPersona, setSelectedPersona] = useState('Socratic');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('Normal');
+  const [selectedFormat, setSelectedFormat] = useState('Free Debate');
   const [isRecording, setIsRecording] = useState(false)
   const [isGeneratingReport, setIsGeneratingReport] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
@@ -126,7 +127,7 @@ function App() {
       const res = await fetch(`${API_URL}/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, persona: selectedPersona, difficulty: selectedDifficulty })
+        body: JSON.stringify({ email: userEmail, persona: selectedPersona, difficulty: selectedDifficulty, format: selectedFormat })
       });
       const data = await res.json();
       setChatList([data, ...chatList]);
@@ -357,13 +358,14 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/chats/${currentChatId}/message`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+        headers: { 
+          'Content-Type': 'application/json' 
         },
         body: JSON.stringify({ 
           message: input, 
           persona: chatList.find(c => c.id === currentChatId)?.persona || 'Socratic',
-          difficulty: chatList.find(c => c.id === currentChatId)?.difficulty || 'Normal'
+          difficulty: chatList.find(c => c.id === currentChatId)?.difficulty || 'Normal',
+          format: chatList.find(c => c.id === currentChatId)?.format || 'Free Debate'
         })
       });
 
@@ -385,12 +387,21 @@ function App() {
         return;
       }
 
-      setMessages([...newMessages, { 
-        sender: 'opponent', 
+      const opponentResponseMsg = { 
+        sender: 'opponent' as const, 
         text: data.opponent_response,
         a2ui_payload: data.referee_scorecard
-      }]);
+      };
+      
+      const finalMessages = [...newMessages, opponentResponseMsg];
+      setMessages(finalMessages);
       speakMessage(data.opponent_response);
+      
+      const format = chatList.find(c => c.id === currentChatId)?.format || 'Free Debate';
+      const userTurns = finalMessages.filter(m => m.sender === 'user').length;
+      if (format === 'Lincoln-Douglas' && userTurns >= 4) {
+        handleConcludeDebate();
+      }
     } catch (error: any) {
       console.error("Failed to fetch response:", error);
       setMessages([...newMessages, { 
@@ -407,7 +418,7 @@ function App() {
       const res = await fetch(`${API_URL}/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, persona: selectedPersona, difficulty: selectedDifficulty })
+        body: JSON.stringify({ email: userEmail, persona: selectedPersona, difficulty: selectedDifficulty, format: selectedFormat })
       });
       const data = await res.json();
       setChatList([data, ...chatList]);
@@ -420,7 +431,7 @@ function App() {
       const response = await fetch(`${API_URL}/chats/${data.id}/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: topic, persona: selectedPersona, difficulty: selectedDifficulty })
+        body: JSON.stringify({ message: topic, persona: selectedPersona, difficulty: selectedDifficulty, format: selectedFormat })
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -586,6 +597,13 @@ function App() {
                 <option value="Hardcore">Hardcore (Flags every minor cognitive bias)</option>
               </select>
             </div>
+            <div className="form-group">
+              <label>Debate Format</label>
+              <select value={selectedFormat} onChange={e => setSelectedFormat(e.target.value)}>
+                <option value="Free Debate">Free Debate (Unlimited turns)</option>
+                <option value="Lincoln-Douglas">Lincoln-Douglas (4 Turns)</option>
+              </select>
+            </div>
             <button className="hero-cta-btn" style={{width: '100%', marginTop: '20px', justifyContent: 'center'}} onClick={confirmCreateChat}>
               Start Debate
             </button>
@@ -743,18 +761,27 @@ function App() {
             </div>
             
             <div className="input-area">
-              <button className={`mic-btn ${isRecording ? 'recording' : ''}`} onClick={handleMicClick} title="Hold to speak">
-                🎤
-              </button>
-              <input 
-                type="text" 
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder={isRecording ? "🔴 Recording... Speak now" : (countdown !== null ? `Starting in ${countdown}...` : "State your argument...")}
-                disabled={isRecording || isTyping || countdown !== null}
-              />
-              <button onClick={handleSend}>Send</button>
+              {(() => {
+                const format = chatList.find(c => c.id === currentChatId)?.format || 'Free Debate';
+                const userTurns = messages.filter(m => m.sender === 'user').length;
+                const isLimitReached = format === 'Lincoln-Douglas' && userTurns >= 4;
+                return (
+                  <>
+                    <button className={`mic-btn ${isRecording ? 'recording' : ''}`} onClick={handleMicClick} title="Hold to speak" disabled={isLimitReached}>
+                      🎤
+                    </button>
+                    <input 
+                      type="text" 
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && !isLimitReached && handleSend()}
+                      placeholder={isLimitReached ? "Debate concluded. Generating Scorecard..." : (isRecording ? "🔴 Recording... Speak now" : (countdown !== null ? `Starting in ${countdown}...` : "State your argument..."))}
+                      disabled={isRecording || isTyping || countdown !== null || isLimitReached}
+                    />
+                    <button onClick={handleSend} disabled={isLimitReached}>Send</button>
+                  </>
+                );
+              })()}
             </div>
           </>
         )}

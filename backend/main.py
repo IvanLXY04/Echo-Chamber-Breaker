@@ -27,6 +27,7 @@ class CreateChatRequest(BaseModel):
     email: str
     persona: str = "Socratic"
     difficulty: str = "Normal"
+    format: str = "Free Debate"
 
 class UpdateChatNameRequest(BaseModel):
     name: str
@@ -34,8 +35,8 @@ class UpdateChatNameRequest(BaseModel):
 @app.post("/chats")
 async def create_chat(req: CreateChatRequest):
     chat_name = f"Debate: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')}"
-    chat_id = db.create_chat(req.email, chat_name, req.persona, req.difficulty)
-    return {"id": chat_id, "name": chat_name, "persona": req.persona, "difficulty": req.difficulty}
+    chat_id = db.create_chat(req.email, chat_name, req.persona, req.difficulty, req.format)
+    return {"id": chat_id, "name": chat_name, "persona": req.persona, "difficulty": req.difficulty, "format": req.format}
 
 @app.get("/chats")
 async def get_chats(email: str):
