@@ -1106,9 +1106,13 @@ body.light-mode .message.opponent {
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-body.light-mode .chat-interface h2,
+body.light-mode .chat-interface-header,
 body.light-mode .input-area {
   background: rgba(241, 245, 249, 0.6);
+  color: #0f172a;
+}
+
+body.light-mode .chat-interface h2 {
   color: #0f172a;
 }
 
