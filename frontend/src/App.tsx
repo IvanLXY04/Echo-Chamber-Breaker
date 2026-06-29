@@ -852,6 +852,7 @@ function App() {
               </button>
             </>
           )}
+          </h2>
           <div className="chat-header-actions">
             {currentChatId && (
               <>
@@ -867,7 +868,6 @@ function App() {
               </>
             )}
           </div>
-        </h2>
         </div>
         
         {!currentChatId ? (
