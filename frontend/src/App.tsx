@@ -463,7 +463,8 @@ function App() {
       filename:     'debate-transcript.pdf',
       image:        { type: 'jpeg' as const, quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
+      pagebreak:    { mode: ['css', 'legacy'], avoid: '.message' }
     };
     
     html2pdf().set(opt).from(element as HTMLElement).save();
