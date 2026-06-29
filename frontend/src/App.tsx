@@ -734,12 +734,22 @@ function App() {
           zIndex: 10000,
         }}
       />
+      {isMobileSidebarOpen && (
+        <div className="mobile-sidebar-overlay" onClick={() => setIsMobileSidebarOpen(false)}></div>
+      )}
       <div className={`sidebar ${isMobileSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <img src="/echo_chamber_breaker_logo.png" alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           <h3>Chats</h3>
           <button className="theme-toggle-btn" onClick={() => setIsLightMode(!isLightMode)} title="Toggle Theme" style={{marginLeft: 'auto'}}>
             {isLightMode ? '🌙' : '☀️'}
+          </button>
+          <button 
+            className="mobile-sidebar-close" 
+            onClick={() => setIsMobileSidebarOpen(false)}
+            title="Close Sidebar"
+          >
+            ✕
           </button>
         </div>
         <div style={{ display: 'flex', gap: '10px', padding: '0 15px', marginBottom: '10px' }}>
