@@ -455,8 +455,18 @@ function App() {
     // Use html2pdf for much more reliable mobile PDF generation
     // @ts-ignore
     const html2pdf = (await import('html2pdf.js')).default;
-    const element = document.querySelector('.messages');
+    const element = document.querySelector('.messages') as HTMLElement;
     if (!element) return;
+    
+    // Temporarily apply styles to ensure perfect PDF rendering
+    const originalDisplay = element.style.display;
+    const originalHeight = element.style.height;
+    const originalOverflow = element.style.overflow;
+    
+    // html2pdf struggles with flexbox pagination, switch to block
+    element.style.display = 'block'; 
+    element.style.height = 'auto';
+    element.style.overflow = 'visible';
     
     const opt = {
       margin:       10, // top, left, bottom, right
@@ -464,10 +474,14 @@ function App() {
       image:        { type: 'jpeg' as const, quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-      pagebreak:    { mode: ['css', 'legacy'], avoid: '.message' }
+      pagebreak:    { mode: 'css', avoid: '.message' }
     };
     
-    html2pdf().set(opt).from(element as HTMLElement).save();
+    html2pdf().set(opt).from(element).save().then(() => {
+      element.style.display = originalDisplay;
+      element.style.height = originalHeight;
+      element.style.overflow = originalOverflow;
+    });
   }
 
   const ws = useRef<WebSocket | null>(null)

@@ -585,6 +585,7 @@
 .message.user {
   background: linear-gradient(135deg, #1e40af, #4338ca);
   align-self: flex-end;
+  margin-left: auto; /* Fallback for block display */
   border-bottom-right-radius: 4px;
   box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
 }
@@ -593,6 +594,7 @@
   background: rgba(30, 41, 59, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.05);
   align-self: flex-start;
+  margin-right: auto; /* Fallback for block display */
   border-bottom-left-radius: 4px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
