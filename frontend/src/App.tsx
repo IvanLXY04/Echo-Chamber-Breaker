@@ -823,7 +823,7 @@ function App() {
       </div>
       
       <div className="chat-interface">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+        <div className="chat-interface-header" style={{ marginBottom: '15px' }}>
           <button 
             className="mobile-sidebar-toggle"
             onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}

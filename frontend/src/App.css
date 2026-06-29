@@ -534,17 +534,24 @@
   padding: 40px 20px;
 }
 
-.chat-interface h2 {
+.chat-interface-header {
   margin: 0;
-  padding: 20px 30px;
+  padding: 15px 30px;
   background: rgba(15, 23, 42, 0.6);
   border-bottom: 1px solid var(--glass-border);
-  font-size: 1.5rem;
-  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 15px;
+}
+
+.chat-interface h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .chat-interface h2 img {
@@ -929,11 +936,13 @@ progress::-webkit-progress-value {
     padding: 15px;
   }
 
-  .chat-interface h2 {
+  .chat-interface-header {
     padding: 10px 15px;
-    font-size: 1.1rem;
     flex-wrap: wrap;
     gap: 10px;
+  }
+  .chat-interface h2 {
+    font-size: 1.2rem;
   }
 
   .chat-header-actions {
