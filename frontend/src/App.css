@@ -1236,9 +1236,13 @@ body.light-mode .user-email {
 }
 
 @media print {
-  body {
+  html, body {
     background: white !important;
     color: black !important;
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
   }
   .sidebar, .input-area, .chat-header-actions, .modal-overlay, .theme-toggle-btn {
     display: none !important;
