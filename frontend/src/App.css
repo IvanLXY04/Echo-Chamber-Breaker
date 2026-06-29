@@ -213,6 +213,26 @@
   box-shadow: 0 10px 30px rgba(139, 92, 246, 0.1);
 }
 
+.mobile-sidebar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease;
+}
+
+.mobile-sidebar-toggle:hover {
+  color: var(--accent-primary);
+}
+
+.tour-persona {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
 .feature-icon {
   font-size: 3rem;
   margin-bottom: 20px;
@@ -931,21 +951,6 @@ progress::-webkit-progress-value {
   display: flex;
   gap: 10px;
   margin-left: auto;
-}
-
-.mobile-sidebar-toggle {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.3s ease;
-}
-
-.mobile-sidebar-toggle:hover {
-  color: var(--accent-primary);
 }
 
 .action-btn {
