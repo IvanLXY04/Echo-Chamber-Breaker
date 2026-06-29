@@ -858,6 +858,7 @@ function App() {
             )}
           </div>
         </h2>
+        </div>
         
         {!currentChatId ? (
           <div className="empty-state">
