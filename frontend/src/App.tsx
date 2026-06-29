@@ -451,10 +451,22 @@ function App() {
     }
   }
 
-  const handleExportTranscript = () => {
-    setTimeout(() => {
-      window.print();
-    }, 100);
+  const handleExportTranscript = async () => {
+    // Use html2pdf for much more reliable mobile PDF generation
+    // @ts-ignore
+    const html2pdf = (await import('html2pdf.js')).default;
+    const element = document.querySelector('.messages');
+    if (!element) return;
+    
+    const opt = {
+      margin:       10, // top, left, bottom, right
+      filename:     'debate-transcript.pdf',
+      image:        { type: 'jpeg' as const, quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element as HTMLElement).save();
   }
 
   const ws = useRef<WebSocket | null>(null)
