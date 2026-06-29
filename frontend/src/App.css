@@ -847,13 +847,28 @@ progress::-webkit-progress-value {
   }
 
   .sidebar {
-    width: 100%;
-    flex: 0 0 auto;
-    height: auto;
-    max-height: 35vh;
-    border-right: none;
-    border-bottom: 1px solid var(--glass-border);
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100dvh;
+    max-height: 100dvh;
+    z-index: 1000;
+    background: var(--bg-surface);
+    transition: left 0.3s ease, box-shadow 0.3s ease;
+    border-right: 1px solid var(--glass-border);
+    border-bottom: none;
     padding: 15px;
+    box-shadow: none;
+  }
+
+  .sidebar.open {
+    left: 0;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.5);
+  }
+
+  .mobile-sidebar-toggle {
+    display: block;
   }
 
   .chat-interface {
@@ -916,6 +931,21 @@ progress::-webkit-progress-value {
   display: flex;
   gap: 10px;
   margin-left: auto;
+}
+
+.mobile-sidebar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease;
+}
+
+.mobile-sidebar-toggle:hover {
+  color: var(--accent-primary);
 }
 
 .action-btn {

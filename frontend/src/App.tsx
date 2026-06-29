@@ -45,6 +45,7 @@ function A2UIRenderer({ payload }: { payload: any }) {
 function App() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<any[]>([])
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userEmail, setUserEmail] = useState('')
   const [chatList, setChatList] = useState<any[]>([])
@@ -210,6 +211,7 @@ function App() {
   }
 
   const loadChat = async (chatId: number) => {
+    setIsMobileSidebarOpen(false);
     try {
       const res = await fetch(`${API_URL}/chats/${chatId}`);
       const data = await res.json();
@@ -732,7 +734,7 @@ function App() {
           zIndex: 10000,
         }}
       />
-      <div className="sidebar">
+      <div className={`sidebar ${isMobileSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <img src="/echo_chamber_breaker_logo.png" alt="Logo" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           <h3>Chats</h3>
@@ -811,8 +813,16 @@ function App() {
       </div>
       
       <div className="chat-interface">
-        <h2>
-          Debate Coach
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+          <button 
+            className="mobile-sidebar-toggle"
+            onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            title="Toggle Sidebar"
+          >
+            ☰
+          </button>
+          <h2 style={{ margin: 0 }}>
+            Debate Coach
           {currentChatId && (
             <>
               <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '10px', fontWeight: 'normal' }}>
