@@ -1236,56 +1236,55 @@ body.light-mode .user-email {
 }
 
 @media print {
-  html, body {
-    background: white !important;
-    color: black !important;
-    display: block !important;
+  * {
+    float: none !important;
+    position: static !important;
+    overflow: visible !important;
     height: auto !important;
     min-height: 0 !important;
-    overflow: visible !important;
+    max-height: none !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    page-break-inside: avoid;
   }
-  .sidebar, .input-area, .chat-header-actions, .modal-overlay, .theme-toggle-btn {
-    display: none !important;
-  }
-  .app-container {
-    height: auto !important;
-    display: block !important;
-    background: white !important;
-    overflow: visible !important;
-  }
-  .chat-interface {
-    height: auto !important;
+  
+  html, body, #root, .app-container, .chat-interface, .messages {
     display: block !important;
     background: white !important;
     color: black !important;
     padding: 0 !important;
-    overflow: visible !important;
+    margin: 0 !important;
   }
-  .messages {
-    overflow: visible !important;
-    padding: 0 !important;
+
+  .sidebar, .input-area, .chat-header-actions, .modal-overlay, .theme-toggle-btn, .mobile-sidebar-toggle, .mobile-sidebar-close, .mobile-sidebar-overlay {
+    display: none !important;
   }
+
   .message {
     background: #f8f9fa !important;
     border: 1px solid #dee2e6 !important;
     color: black !important;
-    page-break-inside: avoid;
     box-shadow: none !important;
+    margin-bottom: 20px !important;
   }
+
   .message.user {
     background: #e9ecef !important;
   }
+
   .chat-interface h2 {
     background: white !important;
     color: black !important;
     border-bottom: 2px solid black !important;
     padding: 10px 0 !important;
+    margin-bottom: 20px !important;
   }
+
   .a2ui-container {
     background: white !important;
     color: black !important;
     border: 1px solid #dee2e6 !important;
     box-shadow: none !important;
-    page-break-inside: avoid;
   }
 }
