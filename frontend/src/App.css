@@ -1,4 +1,13 @@
 /* Premium App Styles */
+/* Theme Transition for smooth dark/light mode toggle */
+body, .landing-page, .app-container, .sidebar, .chat-interface, .input-area, 
+.modal-content, .feature-card, .sidebar-header, .chat-list-item,
+h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select {
+  transition-property: background-color, color, border-color, box-shadow, background;
+  transition-duration: 0.5s;
+  transition-timing-function: ease;
+}
+
 /* Landing Page Styles */
 .landing-page {
   width: 100vw;
@@ -172,7 +181,7 @@
   font-size: 1.2rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
   box-shadow: 0 4px 20px rgba(255,255,255,0.2);
 }
 
@@ -204,7 +213,7 @@
   padding: 40px 30px;
   border-radius: 20px;
   text-align: left;
-  transition: transform 0.3s;
+  transition: transform 0.3s, background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 .feature-card:hover {
@@ -399,7 +408,7 @@
   flex-direction: column;
   padding: 20px;
   position: relative;
-  transition: background 0.5s ease, border-color 0.5s ease;
+  transition: background 0.5s ease, border-color 0.5s ease, color 0.5s ease;
 }
 
 .sidebar-header {
@@ -519,7 +528,7 @@
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  transition: background 0.5s ease;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
 .empty-state {
