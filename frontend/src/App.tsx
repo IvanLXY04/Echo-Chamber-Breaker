@@ -661,6 +661,9 @@ function App() {
                 </ol>
               ));
             }}>How it Works</a>
+            <button className="theme-toggle-btn" onClick={() => setIsLightMode(!isLightMode)} aria-label="Toggle Theme" style={{marginRight: '15px'}}>
+              {isLightMode ? '🌙' : '☀️'}
+            </button>
             <button className="nav-login-btn" onClick={() => login()}>Sign In</button>
           </div>
         </nav>

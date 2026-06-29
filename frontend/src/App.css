@@ -1128,8 +1128,13 @@ body.light-mode .form-group select option {
 
 body.light-mode .modal-content h2,
 body.light-mode .sidebar-header h3,
-body.light-mode .chat-title {
+body.light-mode .chat-title,
+body.light-mode .feature-card h3 {
   color: #0f172a;
+}
+
+body.light-mode .nav-links a:hover {
+  color: #000;
 }
 
 body.light-mode .hero h1 {
