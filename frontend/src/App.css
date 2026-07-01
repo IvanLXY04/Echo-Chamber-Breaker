@@ -294,7 +294,7 @@ h1, h2, h3, h4, h5, h6, p, a, button, input, textarea, select {
 }
 
 .modal-content {
-  background: var(--glass-bg);
+  background: var(--bg-primary);
   border: 1px solid var(--glass-border);
   box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   padding: 40px;
