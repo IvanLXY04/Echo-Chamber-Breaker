@@ -1,4 +1,4 @@
-# Echo-Chamber Breaker 🧠💥
+# Echo-Chamber Breaker 
 
 **A multi-agent AI system that uses Socratic debate and real-time fallacy detection to challenge your strongest beliefs.**
 
@@ -6,7 +6,7 @@ Echo-Chamber Breaker is a full-stack educational web application designed to sha
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 The system utilizes a dual-agent architecture powered by the Google Gemini API:
 1. **The Socratic AI Coach (Gemini 1.5 Pro):** The primary debater that uses the Socratic method to challenge the user's claims.
@@ -14,7 +14,7 @@ The system utilizes a dual-agent architecture powered by the Google Gemini API:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 * **Frontend:** React (Vite), TypeScript, Tailwind/Vanilla CSS, Firebase Auth
 * **Backend:** Python, FastAPI, WebSockets, asyncio, Neon (PostgreSQL)
@@ -23,7 +23,7 @@ The system utilizes a dual-agent architecture powered by the Google Gemini API:
 
 ---
 
-## 🚀 Local Setup Instructions
+## Local Setup Instructions
 
 Follow these instructions to run the project locally on your machine.
 
