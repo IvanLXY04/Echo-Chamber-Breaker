@@ -612,6 +612,15 @@ function App() {
     onError: () => console.log('Login Failed'),
   });
 
+  const handleGuestLogin = () => {
+    setUserEmail('guest_' + Math.random().toString(36).substring(7) + '@echochamber.app');
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setIsLoggedIn(true);
+      setIsTransitioning(false);
+    }, 500);
+  };
+
   if (!isLoggedIn) {
     const showModal = (title: string, content: React.ReactNode) => {
       setActiveModal({ title, content });
@@ -664,6 +673,7 @@ function App() {
             <button className="theme-toggle-btn" onClick={() => setIsLightMode(!isLightMode)} aria-label="Toggle Theme" style={{marginRight: '15px'}}>
               {isLightMode ? '🌙' : '☀️'}
             </button>
+            <button className="nav-login-btn" onClick={() => handleGuestLogin()} style={{marginRight: '10px', background: 'transparent', border: '1px solid var(--accent-purple)'}}>Guest</button>
             <button className="nav-login-btn" onClick={() => login()}>Sign In</button>
           </div>
         </nav>
@@ -680,6 +690,9 @@ function App() {
               <path fill="none" d="M0 0h48v48H0z"/>
             </svg>
             Start Debating for Free
+          </button>
+          <button className="hero-cta-btn" onClick={() => handleGuestLogin()} style={{ marginLeft: '15px', background: 'transparent', border: '2px solid var(--accent-purple)', color: 'var(--text-primary)' }}>
+            Continue as Guest
           </button>
         </header>
 
