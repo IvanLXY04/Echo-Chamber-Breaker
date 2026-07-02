@@ -591,6 +591,28 @@ function App() {
     }
   }
 
+  const handleCreateAndInvite = async () => {
+    try {
+      const res = await fetch(`${API_URL}/chats`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, persona: selectedPersona, difficulty: selectedDifficulty, format: selectedFormat })
+      });
+      const data = await res.json();
+      setChatList([data, ...chatList]);
+      setCurrentChatId(data.id);
+      
+      const url = `${window.location.origin}?join=${data.id}`;
+      navigator.clipboard.writeText(url);
+      setInviteCopied(true);
+      setTimeout(() => setInviteCopied(false), 2000);
+      
+      setMessages([{ sender: 'opponent', text: 'Debate room created! The invite link has been copied to your clipboard. Send it to a friend to start debating!' }]);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
@@ -973,6 +995,24 @@ function App() {
                 }}
               >
                 Start Debate
+              </button>
+              <button 
+                onClick={handleCreateAndInvite}
+                style={{
+                  padding: '0 24px',
+                  background: 'transparent',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                {inviteCopied ? '✅ Copied!' : '🔗 Invite a Friend'}
               </button>
             </div>
           </div>
