@@ -215,7 +215,20 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/chats/${chatId}`);
       const data = await res.json();
-      setMessages(data);
+      const loadedMessages = data.map((msg: any) => {
+        let senderType = msg.sender;
+        let text = msg.text;
+        if (msg.sender !== 'user' && msg.sender !== 'opponent') {
+          if (msg.sender === userEmail) {
+            senderType = 'user';
+          } else {
+            senderType = 'opponent';
+            text = `*[${msg.sender}]*\n\n${msg.text}`;
+          }
+        }
+        return { ...msg, sender: senderType, text: text };
+      });
+      setMessages(loadedMessages);
       setCurrentChatId(chatId);
     } catch (e) {
       console.error('Failed to load chat', e);

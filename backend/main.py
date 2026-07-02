@@ -159,7 +159,7 @@ async def websocket_endpoint(websocket: WebSocket, chat_id: int, email: str):
             difficulty = data.get("difficulty", "Normal")
             
             # Save user message
-            db.add_message(chat_id, "user", message_text)
+            db.add_message(chat_id, email, message_text)
             
             # Broadcast human message
             await manager.broadcast({
