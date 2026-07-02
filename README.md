@@ -92,7 +92,7 @@ Follow these instructions to run the project locally on your machine.
 
 ---
 
-## 🎮 How to Use
+## How to Use
 
 1. Open the frontend in your browser (`http://localhost:5173`).
 2. Log in using Firebase authentication (Google or Email/Password).
