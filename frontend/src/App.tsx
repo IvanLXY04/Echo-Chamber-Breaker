@@ -502,8 +502,9 @@ function App() {
   useEffect(() => {
     if (!currentChatId || !userEmail) return;
     
-    // Connect to WebSocket
-    const wsUrl = API_URL.replace('http', 'ws');
+    // Connect to WebSocket safely (strip trailing slashes to prevent //ws/ which causes 403)
+    let baseApiUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
+    const wsUrl = baseApiUrl.replace('http', 'ws');
     ws.current = new WebSocket(`${wsUrl}/ws/chats/${currentChatId}/${encodeURIComponent(userEmail)}`);
 
     ws.current.onmessage = (event) => {
