@@ -50,6 +50,7 @@ def init_db():
             FOREIGN KEY (chat_id) REFERENCES chats (id) ON DELETE CASCADE
         )
     ''')
+    conn.commit() # Commit table creations BEFORE attempting alter statements!
     
     # Handle schema migration for existing databases
     columns = [
