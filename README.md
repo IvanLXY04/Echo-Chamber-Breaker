@@ -11,6 +11,17 @@ Echo-Chamber Breaker is a full-stack educational web application designed to sha
 1. **The Socratic AI Coach (Gemini 2.5 Flash):** The primary debater that uses the Socratic method to challenge the user's claims.
 2. **The Referee Agent (Gemini 2.5 Flash):** A secondary agent that runs asynchronously to evaluate the user's messages for logical fallacies (e.g., Ad Hominem, Strawman) and scores their "Argument Strength" in real-time.
 
+```mermaid
+graph TD
+    Client[React/Vite Frontend] <-->|WebSockets| FastAPI[FastAPI Server]
+    FastAPI <-->|SQLAlchemy| DB[(PostgreSQL)]
+    FastAPI -->|Async Call| Orchestrator[Debate Orchestrator]
+    Orchestrator -->|Prompt A| Coach[Socratic Coach: Gemini 2.5 Flash]
+    Orchestrator -->|Prompt B| Referee[Referee Agent: Gemini 2.5 Flash]
+    Coach -.->|Streams response| Orchestrator
+    Referee -.->|Returns JSON Scorecard| Orchestrator
+```
+
 ---
 
 ## Tech Stack
@@ -97,5 +108,25 @@ Follow these instructions to run the project locally on your machine.
 2. Log in using Firebase authentication (Google or Email/Password).
 3. Type a controversial statement (e.g., "AI will replace all software engineers").
 4. Wait for the **Socratic Coach** to stream a response.
-5. Intentionally commit a logical fallacy in your reply (e.g., insult the AI). Watch the **Referee Agent** catch the fallacy and drop your score!
 6. Click the "Export PDF" button to download a beautifully formatted transcript of your debate.
+
+---
+
+## Deployment Instructions
+
+To reproduce the live deployment, you will need accounts on **Render** (for the backend) and **Vercel** (for the frontend).
+
+### Backend (Render)
+1. Push your repository to GitHub.
+2. Log into Render and click **New+** > **Web Service**.
+3. Connect your GitHub repository.
+4. Render will automatically detect the Python environment. Set the build command to `pip install -r requirements.txt` and the start command to `uvicorn main:app --host 0.0.0.0 --port $PORT`.
+5. Under the **Environment** tab, add your secrets: `DATABASE_URL` and `GEMINI_API_KEY`.
+6. Click Deploy. (Note: The `.python-version` file ensures Render uses stable Python 3.11).
+
+### Frontend (Vercel)
+1. Log into Vercel and click **Add New** > **Project**.
+2. Connect your GitHub repository and select the `frontend` directory as the Root Directory.
+3. Vercel will automatically detect the Vite framework.
+4. Under **Environment Variables**, add all your `VITE_FIREBASE_*` variables and set `VITE_API_URL` to your newly deployed Render backend URL (e.g., `https://echo-chamber-backend.onrender.com`).
+5. Click **Deploy**.

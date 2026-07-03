@@ -11,6 +11,12 @@ import app.db as db
 app = FastAPI()
 
 class ConnectionManager:
+    """
+    Manages WebSocket connections for real-time multiplayer debates.
+    This allows two users (or a user and a guest) to connect to the same 
+    chat_id and receive bidirectional, real-time updates as the Socratic Coach 
+    and Referee Agent stream their responses concurrently.
+    """
     def __init__(self):
         self.active_connections: Dict[int, List[WebSocket]] = {}
 
@@ -150,6 +156,14 @@ async def delete_chat(chat_id: int):
 
 @app.websocket("/ws/chats/{chat_id}/{email}")
 async def websocket_endpoint(websocket: WebSocket, chat_id: int, email: str):
+    """
+    WebSocket endpoint for real-time debate interaction.
+    Unlike standard REST endpoints, this maintains a persistent connection.
+    When a human sends a message, it is broadcast to all participants instantly.
+    The orchestrator then triggers both AI agents (Coach and Referee) in the 
+    background and broadcasts their generated responses back to the clients 
+    without blocking the main thread.
+    """
     await manager.connect(websocket, chat_id)
     try:
         while True:

@@ -10,7 +10,13 @@ class DebateOrchestrator:
         # We use the standard GenAI SDK to make it easy to run on FastAPI
         client = genai.Client()
         
-        # 1. Opponent generates counter-argument
+        # =====================================================================
+        # AGENT 1: The Socratic Coach (Opponent)
+        # ---------------------------------------------------------------------
+        # This agent acts as the primary conversational interface. It uses 
+        # Gemini 2.5 Flash to rapidly generate a counter-argument based on 
+        # the user's selected persona (e.g., Devil's Advocate, Philosopher).
+        # =====================================================================
         formatted_history = ""
         for msg in history:
             if msg["sender"] == "user":
@@ -32,7 +38,14 @@ Current User argument: {user_input}"""
             contents=opponent_prompt,
         ).text
 
-        # 2. Referee evaluates user input for fallacies
+        # =====================================================================
+        # AGENT 2: The Referee Agent (Evaluator)
+        # ---------------------------------------------------------------------
+        # This secondary agent runs in parallel (or immediately after) to 
+        # evaluate the user's argument for logical fallacies. We utilize 
+        # Gemini 2.5 Flash's structured JSON output capabilities (response_mime_type)
+        # to guarantee the output matches our UI components exactly.
+        # =====================================================================
         strictness_prompt = ""
         if difficulty == "Hardcore":
             strictness_prompt = "Be extremely strict. Flag every single cognitive bias, minor logical leap, emotional appeal, or slightly unsupported claim."
@@ -69,7 +82,9 @@ User argument: {user_input}"""
         except json.JSONDecodeError:
             referee_data = {"error": "Failed to parse referee scorecard."}
 
-        # 3. Combine and return to frontend via A2UI
+        # 3. Combine responses
+        # The orchestrator merges the outputs from both the Socratic Coach and 
+        # the Referee Agent into a single unified payload for the frontend.
         return {
             "opponent_response": opponent_response,
             "referee_scorecard": referee_data
