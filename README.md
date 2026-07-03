@@ -6,6 +6,14 @@ Echo-Chamber Breaker is a full-stack educational web application designed to sha
 
 ---
 
+## The Problem
+Social media algorithms naturally create "echo chambers" by feeding users content that validates their pre-existing beliefs, causing critical thinking skills to atrophy. Furthermore, most modern AI assistants act as sycophantic "yes-men," simply agreeing with the user instead of challenging logically flawed opinions.
+
+## The Solution
+An interactive educational platform that introduces productive intellectual friction. By deploying a dual-agent system, the application forces users to justify their beliefs against a relentless Socratic debater while an impartial Referee agent penalizes them in real-time for using poor rhetorical structure or logical fallacies.
+
+---
+
 ## Architecture
 
 1. **The Socratic AI Coach (Gemini 2.5 Flash):** The primary debater that uses the Socratic method to challenge the user's claims.
